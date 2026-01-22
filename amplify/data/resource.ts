@@ -1,16 +1,166 @@
 import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
 
-/*== STEP 1 ===============================================================
-The section below creates a Todo database table with a "content" field. Try
-adding a new "isDone" field as a boolean. The authorization rule below
-specifies that any user authenticated via an API key can "create", "read",
-"update", and "delete" any "Todo" records.
-=========================================================================*/
 const schema = a.schema({
-  Todo: a
-    .model({
-      content: a.string(),
-    }).authorization(allow => [allow.owner()]),
+  Todo: a.model({
+        content: a.string(),
+      }).authorization(allow => [allow.publicApiKey().to(['read']), allow.authenticated().to(['create', 'update', 'delete'])]),
+
+  User: a.model({
+    userName: a.string(),
+    description: a.string(),
+    location: a.string(),
+    email: a.string().required(),
+    gameScore: a.hasMany('GameScore', 'userID'),
+    game: a.hasMany('Game', 'userID'),
+    disabled: a.boolean(),
+  }).authorization(allow => [allow.publicApiKey().to(['read']), allow.authenticated().to(['create', 'update', 'delete'])]),
+
+  Game: a.model({
+    gameName: a.string().required(),
+    gameDescription: a.string(),
+    gameLogisticInfo: a.string(),
+    gameSummary: a.string(),
+    gameLocationPlace: a.string(),
+    latitude: a.string(),
+    longitude: a.string(),
+    gameLocationPlaceDetails: a.string(),
+    gameLocationCity: a.string().required(),
+    gameDesigner: a.string(),
+    gameLevel: a.string(),
+    walkingDistance: a.string(),
+    playZones: a.string(),
+    gameImage: a.string(),
+    gameType: a.string(),
+    gameWinMessage: a.string(),
+    gameWinImage: a.string(),
+    gameGoals: a.string(),
+    gameIntro: a.string(),
+    gameMap: a.string(),
+    gamePlayZone: a.hasMany('GamePlayZone', 'gameID'),
+    gameHint: a.hasMany('GameHint', 'gameID'),
+    type: a.string().required(),
+    gameClue: a.hasMany('GameClue', 'gameID'),
+    gamePuzzle: a.hasMany('GamePuzzle', 'gameID'),
+    gameScore: a.hasMany('GameScore', 'gameID'),
+    order: a.integer().required(),
+    disabled: a.boolean(),
+    userID: a.id(),
+    user: a.belongsTo('User', 'userID'),
+  }).authorization(allow => [allow.publicApiKey().to(['read']), allow.authenticated()]),
+
+  GamePuzzle: a.model({
+    gameID: a.id().required(),
+    game: a.belongsTo('Game', 'gameID'),
+    gamePlayZoneID: a.string(),
+    puzzlePosition: a.string(),
+    puzzleName: a.string(),
+    puzzleImage: a.string(),
+    puzzleImageOpen: a.string(),
+    puzzleImageSolved: a.string(),
+    textField: a.hasMany('TextField', 'puzzleID'),
+    puzzleClueRevealed: a.string(),
+    puzzleClueText: a.string(),
+    puzzleToolRevealed: a.string(),
+    puzzleToolNeeded: a.string(),
+    winGame: a.boolean(),
+    winGameImage: a.string(),
+    winGameMessage: a.string(),
+    order: a.integer().required(),
+    disabled: a.boolean(),
+  }).authorization(allow => [allow.publicApiKey().to(['read']), allow.authenticated()]),
+
+  TextField: a.model({
+    puzzleID: a.id().required(),
+    puzzle: a.belongsTo('GamePuzzle', 'puzzleID'),
+    name: a.string(),
+    label: a.string(),
+    answer: a.string(),
+    order: a.integer().required(),
+    disabled: a.boolean(),
+  }).authorization(allow => [allow.publicApiKey().to(['read']), allow.authenticated()]),
+
+  GameStats: a.model({
+    gameID: a.string().required(),
+    userEmail: a.string().required(),
+    gameLocationCity: a.string(),
+    gameName: a.string().required(),
+    gameStates: a.string(),
+    gameScore: a.hasMany('GameScore', 'gameStatsID'),
+    type: a.string().required(),
+    disabled: a.boolean(),
+  }).authorization(allow => [allow.publicApiKey().to(['read']), allow.authenticated()]),
+
+  GameScore: a.model({
+    gameStatsID: a.id().required(),
+    gameStats: a.belongsTo('GameStats', 'gameStatsID'),
+    gameID: a.id().required(),
+    game: a.belongsTo('Game', 'gameID'),
+    numberOfPlayers: a.string(),
+    teamName: a.string(),
+    teamLocation: a.string(),
+    gameComments: a.string(),
+    gameTotalTime: a.float().required(),
+    completed: a.boolean(),
+    firstTime: a.boolean(),
+    gameHintTime: a.float().required(),
+    disabled: a.boolean(),
+    userID: a.id(),
+    user: a.belongsTo('User', 'userID'),
+  }).authorization(allow => [allow.publicApiKey().to(['read']), allow.authenticated()]),
+
+  GameHint: a.model({
+    gameID: a.id().required(),
+    game: a.belongsTo('Game', 'gameID'),
+    gamePlayZoneID: a.string(),
+    gameHintName: a.string(),
+    gameHintDescription: a.string(),
+    order: a.integer().required(),
+    disabled: a.boolean(),
+  }).authorization(allow => [allow.publicApiKey().to(['read']), allow.authenticated()]),
+
+  GameClue: a.model({
+    gameID: a.id().required(),
+    game: a.belongsTo('Game', 'gameID'),
+    gamePlayZoneID: a.string(),
+    gameClueName: a.string(),
+    gameClueIcon: a.string(),
+    gameClueImage: a.string(),
+    gameClueText: a.string(),
+    gameCluePosition: a.string(),
+    gameClueToolNeeded: a.string(),
+    order: a.integer().required(),
+    disabled: a.boolean(),
+  }).authorization(allow => [allow.publicApiKey().to(['read']), allow.authenticated()]),
+
+  GamePlayZone: a.model({
+    gameID: a.id().required(),
+    game: a.belongsTo('Game', 'gameID'),
+    gameZoneName: a.string(),
+    gameZoneImage: a.string(),
+    gameZoneDescription: a.string(),
+    longitude: a.string(),
+    latitude: a.string(),
+    gameZoneIcon: a.string(),
+    order: a.integer().required(),
+    disabled: a.boolean(),
+  }).authorization(allow => [allow.publicApiKey().to(['read']), allow.authenticated()]),
+
+  City: a.model({
+    cityName: a.string(),
+    cityDescription: a.string(),
+    cityState: a.string(),
+    cityCountry: a.string(),
+    cityMap: a.string(),
+    order: a.integer().required(),
+    disabled: a.boolean(),
+  }).authorization(allow => [allow.publicApiKey().to(['read']), allow.authenticated()]),
+
+  Icon: a.model({
+    iconName: a.string(),
+    iconText: a.string(),
+    order: a.integer().required(),
+    disabled: a.boolean(),
+  }).authorization(allow => [allow.publicApiKey().to(['read']), allow.authenticated()]),
 });
 
 export type Schema = ClientSchema<typeof schema>;
@@ -18,41 +168,9 @@ export type Schema = ClientSchema<typeof schema>;
 export const data = defineData({
   schema,
   authorizationModes: {
-
-    defaultAuthorizationMode: 'userPool',
-    //defaultAuthorizationMode: "apiKey",
-    // API Key is used for a.allow.public() rules
-    //apiKeyAuthorizationMode: {
-    //  expiresInDays: 30,
-    //},
+    defaultAuthorizationMode: 'apiKey',
+    apiKeyAuthorizationMode: {
+      expiresInDays: 30,
+    },
   },
 });
-
-/*== STEP 2 ===============================================================
-Go to your frontend source code. From your client-side code, generate a
-Data client to make CRUDL requests to your table. (THIS SNIPPET WILL ONLY
-WORK IN THE FRONTEND CODE FILE.)
-
-Using JavaScript or Next.js React Server Components, Middleware, Server 
-Actions or Pages Router? Review how to generate Data clients for those use
-cases: https://docs.amplify.aws/gen2/build-a-backend/data/connect-to-API/
-=========================================================================*/
-
-/*
-"use client"
-import { generateClient } from "aws-amplify/data";
-import type { Schema } from "@/amplify/data/resource";
-
-const client = generateClient<Schema>() // use this Data client for CRUDL requests
-*/
-
-/*== STEP 3 ===============================================================
-Fetch records from the database and use them in your frontend component.
-(THIS SNIPPET WILL ONLY WORK IN THE FRONTEND CODE FILE.)
-=========================================================================*/
-
-/* For example, in a React component, you can use this snippet in your
-  function's RETURN statement */
-// const { data: todos } = await client.models.Todo.list()
-
-// return <ul>{todos.map(todo => <li key={todo.id}>{todo.content}</li>)}</ul>

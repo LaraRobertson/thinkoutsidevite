@@ -2,17 +2,25 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { Authenticator } from '@aws-amplify/ui-react';
 import App from "./App.tsx";
-import "./index.css";
+
+/* minimum for login form: */
+/*
+import '@aws-amplify/ui-react/styles/reset.layer.css';
+import '@aws-amplify/ui-react/styles/base.layer.css';
+import '@aws-amplify/ui-react/styles/button.layer.css';
+*/
 import '@aws-amplify/ui-react/styles.css';
 import { Amplify } from "aws-amplify";
 import outputs from "../amplify_outputs.json";
+
+import "./index.css";
 
 Amplify.configure(outputs);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
     <React.StrictMode>
-        <Authenticator>
+        <Authenticator.Provider>
             <App />
-        </Authenticator>
+        </Authenticator.Provider>
     </React.StrictMode>
 );
