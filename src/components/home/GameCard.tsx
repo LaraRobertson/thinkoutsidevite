@@ -150,7 +150,6 @@ export default function GameCard({game, setGameDetails, hasPlayed, canPlay }: Ga
                         </View>
                     ) : (
                         <View textAlign="center">
-                            {canPlay && (
                                 <View textAlign="center" marginBottom="0">
                                     <Button
                                         className="button button-center-gc button-light-dark show"
@@ -160,7 +159,6 @@ export default function GameCard({game, setGameDetails, hasPlayed, canPlay }: Ga
                                     </Button>
                                     <View className="italics small">time doesn't start yet</View>
                                 </View>
-                            )}
                         </View>
                     )}
                 </Flex>
