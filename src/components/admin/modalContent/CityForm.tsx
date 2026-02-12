@@ -17,6 +17,7 @@ import type { Schema } from "../../../../amplify/data/resource.ts";
 type City = Schema["City"]["type"];
 
 interface CityFormState {
+    id?: string;
     cityName: string;
     cityDescription: string;
     cityState: string;
@@ -64,6 +65,7 @@ export default function CityForm() {
             const { data: cityFromAPI } = await client.models.City.get({ id: cityID });
             if (cityFromAPI) {
                 setFormCreateCityState({
+                    id: cityFromAPI.id,
                     cityName: cityFromAPI.cityName || '',
                     cityDescription: cityFromAPI.cityDescription || '',
                     cityState: cityFromAPI.cityState || '',
@@ -118,7 +120,7 @@ export default function CityForm() {
             return;
         }
         try {
-            const gameCity = { ...formCreateCityState } as any;
+            const gameCity = { ...formCreateCityState };
             const client = dataService.getAuthClient();
             const result = await client.models.City.update(gameCity);
             
