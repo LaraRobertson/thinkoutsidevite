@@ -119,8 +119,12 @@ export default function CityForm() {
             window.alert("City Name is required");
             return;
         }
+        if (!formCreateCityState.id) {
+            window.alert("City ID is missing");
+            return;
+        }
         try {
-            const gameCity = { ...formCreateCityState };
+            const gameCity = { ...formCreateCityState, id: formCreateCityState.id };
             const client = dataService.getAuthClient();
             const result = await client.models.City.update(gameCity);
             
