@@ -316,6 +316,12 @@ input[type="file"] {
     color:black;
     font-size:.8em;
 }
+.flex-row.fourths {
+    width: calc(100% / 4);
+}
+.flex-row.fifths{
+    width: calc(100% / 5);
+}
 .myStats .flex-row{
     width: calc(100% / 5);
 }

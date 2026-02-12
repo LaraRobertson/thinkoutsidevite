@@ -63,7 +63,7 @@ export default function LeaderBoard(props: LeaderBoardProps) {
 
     return (
         <View>
-            <Heading level={4} className="heading light">Game: {props.gameDetails.gameName}</Heading>
+            <Heading level={4} className="modal-overlay-header">Game: {props.gameDetails.gameName}</Heading>
             <View className="small">Only games played the first time will show on leaderboard.</View>
 
             <Button className={showAllTimeButton ? "hide" : "button"} onClick={() => leaderBoardFunction(today.toLocaleDateString('en-CA'))}>
@@ -72,16 +72,16 @@ export default function LeaderBoard(props: LeaderBoardProps) {
                 tap to see all time</Button>
             <Heading level={3} className={showAllTimeButton ? "heading light" : "hide"} >Today</Heading>
             <Heading level={3} className={showAllTimeButton ? "hide" : "heading light"} >All Time</Heading>
-            <div className="table-container" role="table" aria-label="Destinations">
-                <div className="flex-table header" role="rowgroup">
-                    <div className="flex-row first fourths" role="columnheader">Display Name</div>
-                    <div className="flex-row fourths" role="columnheader">Rank</div>
-                    <div className="flex-row fourths" role="columnheader">Team Score</div>
-                    <div className="flex-row fourths" role="columnheader">Played</div>
+            <div className="table-container public-modal" role="table" aria-label="Destinations">
+                <div className="flex-table" role="rowgroup">
+                    <div className="flex-row fourths header" role="columnheader">Display Name</div>
+                    <div className="flex-row fourths header" role="columnheader">Rank</div>
+                    <div className="flex-row fourths header" role="columnheader">Team Score</div>
+                    <div className="flex-row fourths header" role="columnheader">Played</div>
                 </div>
                 {leaderBoard.map((game, index) => (
                     <div className="flex-table row" role="rowgroup" key={game.id}>
-                        <div className="flex-row  fourths" role="cell">{game.teamName}</div>
+                        <div className="flex-row fourths" role="cell">{game.teamName}</div>
                         <div className="flex-row fourths" role="cell">{Number(index) + 1}</div>
                         <div className="flex-row fourths" role="cell">{game.gameTotalTime} mins</div>
                         <div className="flex-row fourths" role="cell"> {format(new Date(game.createdAt), "MM/dd/yyyy H:mma")}</div>

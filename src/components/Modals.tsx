@@ -270,11 +270,11 @@ export function ModalPuzzle({modalPuzzleContent,setModalPuzzleContent,gamePuzzle
                         <header className="modal_header">
                             <h2 className="modal_header-clueDetails">{gamePuzzleDetails.puzzleName}</h2>
                             <button className="close" onClick={() => close()}>
-                                close
+                                X
                             </button>
                         </header>
                         <main className="modal_content">
-                            <div className={isChecked? "dark" : "light"}>
+                            <div className={isChecked? "background-dark" : "background-light"}>
                                 {children}
                             </div>
                         </main>
@@ -315,8 +315,8 @@ export function ModalWinner({showWinner, setShowWinner, children}: ModalWinnerPr
                                 close
                             </button>
                         </header>
-                        <main className="modal_content">
-                            <View className={"dark"}>
+                        <main className="modal_content background-light">
+                            <View className={"background-light"}>
                                 {children}
                             </View>
                         </main>

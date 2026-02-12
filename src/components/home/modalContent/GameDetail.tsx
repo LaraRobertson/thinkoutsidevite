@@ -100,34 +100,18 @@ export default function GameDetail(props: GameDetailProps) {
                         </View>
                     </Accordion.Content>
                 </Accordion.Item>
-                <Accordion.Item value="Notes">
-                    <Accordion.Trigger>
-                        <strong>Notes</strong>
-                        <Accordion.Icon/>
-                    </Accordion.Trigger>
-                    <Accordion.Content>
-                        <View>
-                            <View paddingBottom="10px">
-                                The <strong>Notes</strong> area can be used to write custom notes or save
-                               clues to help you solve the puzzles.
-                            </View>
-                        </View>
-                    </Accordion.Content>
-                </Accordion.Item>
                 <Accordion.Item value="Hint">
                     <Accordion.Trigger>
-                        <strong>Hint</strong>
+                        <strong>Hints</strong>
                         <Accordion.Icon/>
                     </Accordion.Trigger>
                     <Accordion.Content>
                         <View>
                             <View paddingBottom="10px">
-                                See Available hints in <strong>"Help"</strong> window.
+                                Hints are basically better clues but they generally cost you time.
+                                You will be warned if you choose to use a hint.
                                 Choosing an Individual Hint adds <span
                                 className="italics"> 5 Minutes!</span></View>
-                            <View paddingBottom="10px">
-                                <Image src="https://escapeoutbucket2183723-dev.s3.amazonaws.com/public/hint-modal.png" alt="hint modal"/>
-                            </View>
                         </View>
                     </Accordion.Content>
                 </Accordion.Item>

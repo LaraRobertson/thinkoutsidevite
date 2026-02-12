@@ -91,15 +91,18 @@ export default function GameList(props: GameListProps) {
                 GAMES ARE IN TESTING MODE<br />Please contact info@escapeout.games to report issues.
             </Heading>
             {user && (
+                <>
+                <h3>Welcome {user?.signInDetails?.loginId}</h3>
                 <Button
                     className="button button-small background-light show"
                     onClick={() => handleMyStats()}
                 >
                     My Stats
                 </Button>
+                </>
             )}
-            <View className={gameLocationCity ? "dark-background-link" : "green-background-link"} margin="0 auto 5px auto" textAlign="center" fontSize=".7em" padding="5px" lineHeight="1.1em">
-                    <Heading level={6} className="heading" marginBottom="5px">
+            <View className={gameLocationCity ? "dark-background-link" : "green-background-link"} margin="10px auto 5px auto" textAlign="center" fontSize=".7em" padding="5px" lineHeight="1.1em">
+                    <Heading level={6} className="heading" marginBottom="5px" >
                         {(((gameListByCity.length === 0)&&!gameLocationCity) && !loading) ? "Select Game City: Click on a city to see game locations" : `Game City: ${gameLocationCity}`}
                         {(gameListByCity.length === 0)&&gameLocationCity ? " (no game locations)" : ` (${gameListByCity.length} games)`}
                     </Heading>

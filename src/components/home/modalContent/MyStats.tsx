@@ -69,29 +69,29 @@ export default function MyStats() {
         
         return (
             <div className="table-container myStats" role="table" aria-label="game score" key={props.gameName}>
-                <div className="flex-table header" role="rowgroup">
-                    <div className="flex-row " role="columnheader">Team Name</div>
-                    <div className="flex-row " role="columnheader">Team Score</div>
-                    <div className="flex-row" role="columnheader">Total Time</div>
-                    <div className="flex-row" role="columnheader">Hint Time</div>
-                    <div className="flex-row" role="columnheader">Finished</div>
+                <div className="flex-table public-modal" role="rowgroup">
+                    <div className="flex-row fifths header" role="columnheader">Team Name</div>
+                    <div className="flex-row fifths header" role="columnheader">Team Score</div>
+                    <div className="flex-row fifths header" role="columnheader">Total Time</div>
+                    <div className="flex-row fifths header" role="columnheader">Hint Time</div>
+                    <div className="flex-row fifths header" role="columnheader">Finished</div>
                 </div>
                 {props.gameScoreArray.map((score) => (
                     <div role="rowgroup" key={score.id} className={((props.showAllTimeButton) && (format(new Date(score.updatedAt), "yyyy-MM-dd") != today.toLocaleDateString('en-CA'))) ? "hide" : "show"}>
-                        <div className="flex-table row">
-                            <div className="flex-row first" role="cell"> {score.teamName}</div>
-                            <div className="flex-row " role="cell">{score.gameTotalTime}</div>
-                            <div className="flex-row" role="cell">
+                        <div className="flex-table row public-modal">
+                            <div className="flex-row fifths" role="cell"> {score.teamName}</div>
+                            <div className="flex-row fifths " role="cell">{score.gameTotalTime}</div>
+                            <div className="flex-row fifths" role="cell">
                                 {score.gameTotalTime}
                             </div>
-                            <div className="flex-row" role="cell">
+                            <div className="flex-row fifths" role="cell">
                                 {score.gameHintTime}
                             </div>
-                            <div className="flex-row" role="cell">{score.completed ? ("true"):("false")}  {score.firstTime ? (" - 1st time") :null}</div>
+                            <div className="flex-row fifths" role="cell">{score.completed ? ("true"):("false")}  {score.firstTime ? (" - 1st time") :null}</div>
                         </div>
-                        <div className="flex-table row">
+                        <div className="flex-table row public-modal">
                             <div className="flex-row four-width-home" role="cell">Comments: {score.gameComments}</div>
-                            <div className="flex-row small" role="cell"> {format(new Date(score.updatedAt), "MM/dd/yy h:mma")}</div>
+                            <div className="flex-row  fifths small" role="cell"> {format(new Date(score.updatedAt), "MM/dd/yy h:mma")}</div>
                         </div>
                     </div>
                 ))}

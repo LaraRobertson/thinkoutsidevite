@@ -86,6 +86,7 @@ export default function GameCard({game, setGameDetails, hasPlayed, canPlay }: Ga
     *  const canPlay = gamesIDUser?.includes(id) || gameType === "free" || gameType === "free-test";
     **** may use canPlay if some games cost money but not now ****
      */
+    console.log("canPlay: " + canPlay + " " + gameName);
 
     const gameDetailsData = {
         email: userEmail || "",
@@ -117,7 +118,7 @@ export default function GameCard({game, setGameDetails, hasPlayed, canPlay }: Ga
                     </Text>
                 </View>
                 <View className="game-card-full">
-                    {canPlay && <Text className="game-card-header">(can play)</Text>}
+                    {/*canPlay && <Text className="game-card-header">(can play)</Text>*/}
                     {hasPlayed ? (
                         <Text className="game-card-header played">
                             {gameName} <span className="small">(played)</span>
@@ -180,7 +181,7 @@ export default function GameCard({game, setGameDetails, hasPlayed, canPlay }: Ga
                             Leaderboard
                         </Button>
                     </View>
-                    <View className="italics small">tap on Leaderboard to see some times</View>
+                    <View className="italics small">Leaderboard shows fastest times</View>
                 </View>
             </View>
         </Card>

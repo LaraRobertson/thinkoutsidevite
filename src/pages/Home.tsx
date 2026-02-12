@@ -1,4 +1,3 @@
-import { useHomeData } from "../hooks/useHomeData";
 import Hero from "../components/home/Hero";
 import GameList from "../components/home/GameList";
 import GameDetail from "../components/home/modalContent/GameDetail";
@@ -17,7 +16,6 @@ import { dataService } from "../services/dataService";
 
 
 export default function Home() {
-  const { error, loading } = useHomeData();
   const [gameDetails, setGameDetails] = useState<GameDetails | null>(null);
   const [gamesIDUserPlayed, setGamesIDUserPlayed] = useState<string[]>([]);
   const [gamesIDUser, setGamesIDUser] = useState<string[]>([]);
@@ -28,6 +26,8 @@ export default function Home() {
 
 
     useEffect(() => {
+        if (!user) return;
+        
         async function fetchUserPlayedGames() {
             if (!user?.signInDetails?.loginId) return;
             
@@ -92,8 +92,10 @@ export default function Home() {
     }, [location.hash]);
 
     useEffect(() => {
+        if (!user) return;
+        
         async function checkAndCreateUser() {
-            if (!user?.signInDetails?.loginId || loading) return;
+            if (!user?.signInDetails?.loginId) return;
             
             const userEmail = user.signInDetails.loginId;
             
@@ -122,14 +124,12 @@ export default function Home() {
         }
         
         checkAndCreateUser();
-    }, [user, loading]);
+    }, [user]);
 
 
     const context = useContext(MyAuthContext);
     if (!context) throw new Error("GameSection must be used within MyAuthContext.Provider");
     const { modalContent } = context;
-
-    if (loading) return <div>Loading...</div>;
 
     return (
       <>
@@ -138,8 +138,6 @@ export default function Home() {
         </section>
         <section className={"main-container background-dark"}>
             <div className={"main-content"}>
-            {error && <div style={{color: 'red', padding: '10px'}}>{error}</div>}
-
                 <GameList setGameDetails={setGameDetails} gamesIDUserPlayed={gamesIDUserPlayed} gamesIDUser={gamesIDUser}/>
                 <ModalSlideFromBottom isOpen={modalContent.open} >
                     {(modalContent.content == "Game Detail" && gameDetails) && <GameDetail gameDetails={gameDetails} />}

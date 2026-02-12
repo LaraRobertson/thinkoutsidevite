@@ -8,10 +8,11 @@ import Logo from "../assets/icons/logo.svg?react";
 
 interface NavContainerProps {
     signOut: () => void;
+    footer: boolean;
 }
 
 export default function NavContainer(props: NavContainerProps) {
-    const { signOut } = props;
+    const { signOut, footer } = props;
     const [isOpen, setIsOpen] = useState(false);
 
     function toggleModal() {
@@ -27,7 +28,7 @@ return (
             <NavLink to="/"><Logo width={250} height={51} /></NavLink>
         </div>
         <div className="nav-item">
-            <nav className="navigation">
+            <nav className={footer? "navigation footer" : "navigation"}>
                 <ul>
                     <li>
                         <NavLink to="/#playgames" className={({ isActive}) => isActive ? "active" : ""}>
@@ -49,7 +50,7 @@ return (
                             Admin
                         </NavLink>
                     </li>
-
+                    {!footer &&
                     <li>
                         {authStatus !== "authenticated" ? (
                             <NavLink to="/login" className={({ isActive}) => isActive ? "active" : ""}>
@@ -58,21 +59,21 @@ return (
                         ) : (
                             <button  onClick={signOut}>Sign out</button>
                         )}
-                    </li>
+                    </li>}
 
 
                 </ul>
             </nav>
-            <div className="hamburger-container">
+            {!footer && <div className="hamburger-container">
                 <Hamburger toggled={isOpen} toggle={toggleModal} color="#62dc01" />
-            </div>
+            </div>}
             {/* Mobile menu (always rendered for animation) */}
             <ModalSlideFromRight isOpen={isOpen} onClose={toggleModal} modalStyle={modalStyle}>
                 {/* Content of the mobile menu inside the modal */}
                 <nav className="mobile-menu">
                     <ul>
                         <li>
-                            <NavLink to="/game" className={({ isActive}) => isActive ? "active" : ""} onClick={toggleModal}>
+                            <NavLink to="/#playgames" className={({ isActive}) => isActive ? "active" : ""} onClick={toggleModal}>
                                 Play Games
                             </NavLink>
                         </li>

@@ -1,17 +1,17 @@
-import { useAdminData } from "../../hooks/useAdminData";
 import {Button, Flex, Heading, TextField, View} from "@aws-amplify/ui-react";
-import {useContext, useEffect} from "react";
+import {useContext, useEffect, useState} from "react";
 import {MyAuthContext} from "../../MyContext";
 import { dataService } from "../../services/dataService";
 import {createModalContent, getDefaultModalContent} from "../../utils/modalHelpers.ts";
+import type {Schema} from "../../../amplify/data/resource.ts";
+
 
 
 export default function UserSection() {
-    const { users } = useAdminData();
     const context = useContext(MyAuthContext);
     if (!context) throw new Error("GameIntro must be used within MyAuthContext.Provider");
     const { setModalContent} = context;
-    
+    const [users] = useState<Array<Schema["User"]["type"]>>([]);
     useEffect(() => {
         console.log("***useEffect***:  initialize");
         /* close modal */

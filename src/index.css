@@ -98,7 +98,7 @@ main {
   display: flex;
   flex-direction: column;
   align-items: stretch; /* automatically stretch along cross axis */
-  background-color: var(--background-dark);
+  background-color: var(--body-background-dark);
   min-height: 100vh;
 }
 .main-container {
@@ -234,13 +234,23 @@ a {
   .navigation {
     /* Hide menu by default */
     display: none;
-    position: absolute;
-    top: 60px; /* Adjust based on header height */
+    /*position: absolute;
     left: 0;
     width: 100%;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    z-index: 99;
+    z-index: 99;*/
+    top: 60px; /* Adjust based on header height */
 
+  }
+  nav.navigation.footer {
+    display:block;
+  }
+  footer .nav-container {
+    flex-direction: column;
+    align-items: center;
+  }
+  nav.navigation.footer ul li a {
+    font-size: 1rem;
   }
 
   /* Styles for when the menu is active/open (requires JS to add the 'open' class) */
@@ -389,4 +399,25 @@ a {
   max-width: var(--mobile-width);
   border: 1px solid black;
   margin: 0 auto;
+}
+.public-modal .flex-row{
+  background-color: var(--background-light);
+}
+.public-modal .flex-row.header{
+  background-color: #0b441d38;
+  border-top: solid 1px #d9d9d9;
+}
+.modal-overlay .game-details, .modal-overlay .slide-from-bottom {
+  padding-top:3rem;
+}
+.modal-overlay .game-details .modal-close-button {
+  top:-10px;
+  right:0;
+  padding:0;
+  font-size: 2.5rem;
+  background: white;
+  padding: 0 1rem;
+}
+.puzzleModal .background-dark .close {
+  color: var(--color-light);
 }
