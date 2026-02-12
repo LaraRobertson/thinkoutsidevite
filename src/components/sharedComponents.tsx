@@ -1,30 +1,19 @@
 import {Button, Image, TextAreaField, View, Flex, Icon} from "@aws-amplify/ui-react";
 import React from "react";
 import {
-    toggleNotes,
     setCommentsFunction,
     goHome
 } from "./helper";
-import {useNavigate, NavigateFunction} from "react-router-dom";
-import DOMPurify from "dompurify";
-import diary from "../assets/noun-diary-6966311.svg";
-import tornPaper from "../assets/noun-torn-paper-3017230.svg";
-import messageInABottle from "../assets/noun-message-in-a-bottle-5712014.svg";
-import clueIcon from "../assets/noun-clue-4353248.svg";
-import clueNoteIcon from "../assets/noun-note-question-1648398.svg";
-import envelope from "../assets/noun-message-6963433.svg";
+import {useNavigate} from "react-router-dom";
+import diary from "../assets/icons/noun-diary-6966311.svg";
+import tornPaper from "../assets/icons/noun-torn-paper-3017230.svg";
+import messageInABottle from "../assets/icons/noun-message-in-a-bottle-5712014.svg";
+import clueIcon from "../assets/icons/noun-clue-4353248.svg";
+import clueNoteIcon from "../assets/icons/noun-note-question-1648398.svg";
+import envelope from "../assets/icons/noun-message-6963433.svg";
 
 interface NotAvailableProps {
     authStatus: string;
-}
-
-interface TimeBlockProps {
-    realTimeStart: string;
-    gameTimeHint: number;
-    isHelpVisible: boolean;
-    setIsHelpVisible: (visible: boolean) => void;
-    areNotesVisible: boolean;
-    setAreNotesVisible: (visible: boolean) => void;
 }
 
 interface CommentWindowProps {
@@ -35,24 +24,6 @@ interface CommentWindowProps {
 interface IconClueDisplayProps {
     gameClueIcon: string;
     hide?: string;
-}
-
-interface ClueItem {
-    gameClueID: string;
-    gameClueName: string;
-    gameClueText: string;
-    gameClueImage: string;
-}
-
-interface NotesOpenProps {
-    cluesArray: ClueItem[];
-    setCluesArrayRemoveFunction: (index: number) => void;
-    isChecked: boolean;
-    clues: string;
-    gameNotes: string;
-    setGameNotesFunction: (notes: string, setter: (notes: string) => void) => void;
-    setGameNotes: (notes: string) => void;
-    setCluesArray: (clues: ClueItem[]) => void;
 }
 
 export const NotAvailable: React.FC<NotAvailableProps> = ({ authStatus }) => {
@@ -89,21 +60,6 @@ export const GreenIcon: React.FC = () => {
     )
 }
 
-function toggleHelp(isHelpVisible: boolean, setIsHelpVisible: (visible: boolean) => void) {
-    setIsHelpVisible(!isHelpVisible);
-}
-
-export const TimeBlock: React.FC<TimeBlockProps> = (props) => {
-    console.log("props.realTimeStart: " + props.realTimeStart);
-    let realTimeStart = new Date(props.realTimeStart).toLocaleString();
-    return (
-        <View aria-label="stop 1 Time" className="time">
-            <View className="small">hint time: {props.gameTimeHint} mins | time started: {realTimeStart} </View>
-            <Button onClick={() => toggleHelp(props.isHelpVisible, props.setIsHelpVisible)}>Help</Button>
-            <Button onClick={() => toggleNotes(props.areNotesVisible, props.setAreNotesVisible, false, () => {})}>Notes</Button>
-        </View>
-    )
-}
 
 export const CommentWindow: React.FC<CommentWindowProps> = (props) => {
     const navigate = useNavigate();
@@ -113,6 +69,7 @@ export const CommentWindow: React.FC<CommentWindowProps> = (props) => {
                 <h3>Thank you for playing. </h3>
                 We really want to know any and all comments you have about the game.
                 <TextAreaField
+                    label={""}
                     rows={6}
                     onChange={(e) => setCommentsFunction(e.currentTarget.value, props.setGameComments)}
                     descriptiveText="Any Issues or Problems?  Suggestions for improvement?"
@@ -121,11 +78,6 @@ export const CommentWindow: React.FC<CommentWindowProps> = (props) => {
             </View>
         </View>
     )
-}
-
-function DangerouslySetInnerHTMLSanitized(htmlContent: string): string {
-    const sanitizedHtmlContent = DOMPurify.sanitize(htmlContent);
-    return sanitizedHtmlContent;
 }
 
 export const IconClueDisplay: React.FC<IconClueDisplayProps> = ({ gameClueIcon }) => {
@@ -149,52 +101,4 @@ export const IconClueDisplay: React.FC<IconClueDisplayProps> = ({ gameClueIcon }
         }
     }
     return null;
-}
-
-export const NotesOpen: React.FC<NotesOpenProps> = (props) => {
-    let cluesArray = props.cluesArray;
-    let setCluesArrayRemoveFunction = props.setCluesArrayRemoveFunction;
-    return (
-        <View className="notes notes-change show-gradual">
-            <View className={props.isChecked ? "dark" : "light"} height="auto">
-                <View className="notes notes-change show-gradual">
-                    <View height="auto">
-                        <strong>Clues/Notes</strong>
-                        {cluesArray.map((clue, index) => (
-                            <React.Fragment key={clue.gameClueID + "-" + index}>
-                                <Flex className="clue-row small">
-                                    <View className="italics">{clue.gameClueName}:</View>
-                                    <View dangerouslySetInnerHTML={{ __html: DangerouslySetInnerHTMLSanitized(clue.gameClueText) }} padding="0 10px">
-                                    </View>
-                                    <Button className="link-button small delete-notes" onClick={() => setCluesArrayRemoveFunction(index)}>x</Button>
-                                </Flex>
-                                <Image src={clue.gameClueImage} alt={clue.gameClueName} />
-                            </React.Fragment>
-                        ))}
-                    </View>
-                </View>
-
-                <View className={(props.clues !== '' && props.clues !== undefined) ? "small show" : "hide"}>
-                    <View textAlign="center">
-                        <Button 
-                            className={props.isChecked ? "link-button small dark" : "link-button small light"}
-                            onClick={() => props.setCluesArray([])}
-                        >
-                            clear all clues
-                        </Button>
-                    </View>
-                </View>
-                <View className="textArea-Container">
-                    <TextAreaField
-                        label="Notes"
-                        labelHidden
-                        value={props.gameNotes}
-                        rows={5}
-                        onChange={(e) => props.setGameNotesFunction(e.currentTarget.value, props.setGameNotes)}
-                        descriptiveText="Take some Notes - close when done, they will still be here"
-                    />
-                </View>
-            </View>
-        </View>
-    )
 }

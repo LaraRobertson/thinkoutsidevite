@@ -1,47 +1,25 @@
 import {Button, Flex, Input, SelectField, SwitchField, TextAreaField, TextField, View} from "@aws-amplify/ui-react";
-import React, {useContext, useEffect, useState} from "react";
-import {MyAuthContext} from "../../MyContext";
-import { dataService } from "../../services/dataService";
-import type { Schema } from "../../../amplify/data/resource";
+import {useContext, useEffect, useState} from "react";
+import {MyAuthContext} from "../../../MyContext.tsx";
+import { dataService } from "../../../services/dataService.ts";
+import type { Schema } from "../../../../amplify/data/resource.ts";
+import {getDefaultModalContent} from "../../../utils/modalHelpers.ts";
 
 type City = Schema["City"]["type"];
 type Game = Schema["Game"]["type"];
 
-interface GameFormState {
-    gameName: string;
-    gameType: string;
-    gameLocationPlace: string;
-    gameLocationCity: string;
-    gameDesigner: string;
-    gameLevel: string;
-    walkingDistance: string;
-    gameWinMessage: string;
-    type: string;
-    gameDescription: string;
-    gameLogisticInfo: string;
-    gameSummary: string;
-    gameIntro: string;
-    gameGoals: string;
-    disabled: boolean;
-    latitude?: string;
-    longitude?: string;
-    order?: number;
-}
+type GameFormState = Omit<Game, 'id' | 'createdAt' | 'updatedAt' | 'gamePlayZone' | 'gameHint' | 'gameClue' | 'gamePuzzle' | 'gameScore'>;
 
-interface GameFormProps {
-    formCreateGameStateBackup: any;
-    setFormCreateGameStateBackup: (state: any) => void;
-}
 
-export default function GameForm(props: GameFormProps) {
-    const { setModalContent, modalContent } = useContext(MyAuthContext);
+export default function GameForm() {
+    const context = useContext(MyAuthContext);
+    if (!context) throw new Error("GameSection must be used within MyAuthContext.Provider");
+    const { setModalContent, modalContent } = context;
     const [cities, setCities] = useState<City[]>([]);
-    let action = modalContent.action;
-    let gameID = modalContent.id;
-    let formCreateGameStateBackup = props.formCreateGameStateBackup;
-    let setFormCreateGameStateBackup = props.setFormCreateGameStateBackup;
+    const action = modalContent.action;
+    const gameID = modalContent.id;
     
-    const initialStateCreateGame: GameFormState = {
+    const initialStateCreateGame: Partial<GameFormState> = {
         gameName: '',
         gameType: '',
         gameLocationPlace: '',
@@ -59,7 +37,7 @@ export default function GameForm(props: GameFormProps) {
         disabled: false
     };
     
-    const [formCreateGameState, setFormCreateGameState] = useState<GameFormState>(initialStateCreateGame);
+    const [formCreateGameState, setFormCreateGameState] = useState<Partial<GameFormState>>(initialStateCreateGame);
     
     useEffect(() => {
         if (action === "edit") {
@@ -72,9 +50,28 @@ export default function GameForm(props: GameFormProps) {
         console.log("gameID : " + gameID );
         try {
             const client = dataService.getClient();
-            const { data: gamesFromAPI } = await client.models.Game.get({ id: gameID });
+            const { data: gamesFromAPI } = await client.models.Game.get({ id: gameID || '' });
             if (gamesFromAPI) {
-                setFormCreateGameState(gamesFromAPI);
+                setFormCreateGameState({
+                    gameName: gamesFromAPI.gameName || '',
+                    gameType: gamesFromAPI.gameType || '',
+                    gameLocationPlace: gamesFromAPI.gameLocationPlace || '',
+                    gameLocationCity: gamesFromAPI.gameLocationCity || '',
+                    gameDesigner: gamesFromAPI.gameDesigner || '',
+                    gameLevel: gamesFromAPI.gameLevel || '',
+                    walkingDistance: gamesFromAPI.walkingDistance || '',
+                    gameWinMessage: gamesFromAPI.gameWinMessage || '',
+                    type: gamesFromAPI.type || 'game',
+                    gameDescription: gamesFromAPI.gameDescription || '',
+                    gameLogisticInfo: gamesFromAPI.gameLogisticInfo || '',
+                    gameSummary: gamesFromAPI.gameSummary || '',
+                    gameIntro: gamesFromAPI.gameIntro || '',
+                    gameGoals: gamesFromAPI.gameGoals || '',
+                    disabled: gamesFromAPI.disabled || false,
+                    latitude: gamesFromAPI.latitude || undefined,
+                    longitude: gamesFromAPI.longitude || undefined,
+                    order: gamesFromAPI.order || undefined
+                });
             }
         } catch (err) {
             console.log('error fetching getGame', err);
@@ -98,6 +95,10 @@ export default function GameForm(props: GameFormProps) {
         try {
             const game = { 
                 ...formCreateGameState,
+                gameName: formCreateGameState.gameName!,
+                gameLocationCity: formCreateGameState.gameLocationCity!,
+                gameLocationPlace: formCreateGameState.gameLocationPlace!,
+                type: formCreateGameState.type || 'game',
                 order: formCreateGameState.order || 0
             };
             console.log("addGame data:", JSON.stringify(game));
@@ -114,13 +115,8 @@ export default function GameForm(props: GameFormProps) {
             }
             
             setFormCreateGameState(initialStateCreateGame);
-            setModalContent({
-                open: false,
-                content: "",
-                id: "",
-                action: "",
-                updatedDB:true
-            })
+            /* close Modal */
+            setModalContent(getDefaultModalContent());
             window.alert("Game created successfully!");
         } catch (err) {
             console.error('error creating games:', err);
@@ -130,19 +126,23 @@ export default function GameForm(props: GameFormProps) {
     
     async function addGameFromFile() {
         try {
-            if (!formCreateGameState.gameName ) return;
-            const game = { ...formCreateGameState } as any;
+            if (!formCreateGameState.gameName) return;
+            if (!formCreateGameState.gameLocationCity) return;
+            if (!formCreateGameState.gameLocationPlace) return;
+            const game = {
+                ...formCreateGameState,
+                gameName: formCreateGameState.gameName!,
+                gameLocationCity: formCreateGameState.gameLocationCity!,
+                gameLocationPlace: formCreateGameState.gameLocationPlace!,
+                type: formCreateGameState.type || 'game',
+                order: formCreateGameState.order || 0
+            };
             console.log("addGame: " + game);
             setFormCreateGameState(initialStateCreateGame);
             const client = dataService.getClient();
             await client.models.Game.create(game);
-            setModalContent({
-                open: false,
-                content: "",
-                id: "",
-                action: "",
-                updatedDB:true
-            })
+            /* close Modal */
+            setModalContent(getDefaultModalContent());
         } catch (err) {
             console.log('error creating games:', err);
         }
@@ -152,10 +152,10 @@ export default function GameForm(props: GameFormProps) {
         console.log("updateGame: " + formCreateGameState.gameName)
         try {
             if (!formCreateGameState.gameName) return;
-            const game = { ...formCreateGameState, id: gameID } as any;
+            const game = { ...formCreateGameState, id: gameID! };
             console.log("formCreateGameState - update game")
             for (const key in game) {
-                console.log(`${key}: ${game[key]}`);
+                console.log(`${key}: ${game[key as keyof typeof game]}`);
             }
             const client = dataService.getAuthClient();
             const result = await client.models.Game.update(game);
@@ -169,13 +169,8 @@ export default function GameForm(props: GameFormProps) {
             }
             
             setFormCreateGameState(initialStateCreateGame);
-            setModalContent({
-                open: false,
-                content: "",
-                id: "",
-                action: "",
-                updatedDB:true
-            })
+            /* close Modal */
+            setModalContent(getDefaultModalContent());
             window.alert("Game updated successfully!");
         } catch (err) {
             console.error('error updating games:', err);
@@ -183,11 +178,13 @@ export default function GameForm(props: GameFormProps) {
         }
     }
     
-    function setInputCreateGame(key: keyof GameFormState, value: string | number | boolean) {
+    function setInputCreateGame(key: keyof GameFormState, value: string | number | boolean | null) {
         setFormCreateGameState({ ...formCreateGameState, [key]: value });
     }
-    
-    const [files, setFiles] = useState("");
+    function handleUploadBackup() {
+
+    }
+   /* const [files, setFiles] = useState("");
     
     async function handleUploadBackup(e: React.ChangeEvent<HTMLInputElement>) {
         console.log("uploaded file: " + e.target.files?.[0]?.name);
@@ -206,13 +203,12 @@ export default function GameForm(props: GameFormProps) {
                 if (e.target?.result) {
                     console.log("e.target.result", e.target.result);
                     const result = e.target.result as string;
-                    setFormCreateGameStateBackup(JSON.parse(result));
                     setFormCreateGameState(JSON.parse(result));
                     localStorage.setItem("backup", result);
                 }
             };
         }
-    }
+    }*/
     
     async function fetchCities() {
         try {
@@ -238,7 +234,7 @@ export default function GameForm(props: GameFormProps) {
                 </View>}
                 <SwitchField
                     label={formCreateGameState.disabled? "disabled" : "live"}
-                    isChecked={formCreateGameState.disabled}
+                    isChecked={formCreateGameState.disabled || false}
                     onChange={(e) => {
                         console.log("e.target.checked: " + e.target.checked)
                         setInputCreateGame('disabled', e.target.checked);
@@ -260,7 +256,7 @@ export default function GameForm(props: GameFormProps) {
                     placeholder="Game Name"
                     label="Game Name"
                     variation="quiet"
-                    value={formCreateGameState.gameName}
+                    value={formCreateGameState.gameName || ''}
                     required
                 />
                 <TextField
@@ -269,7 +265,7 @@ export default function GameForm(props: GameFormProps) {
                     placeholder="free/not free"
                     label="Game Type"
                     variation="quiet"
-                    value={formCreateGameState.gameType}
+                    value={formCreateGameState.gameType || ''}
                     required
                 />
                 <TextField
@@ -278,17 +274,17 @@ export default function GameForm(props: GameFormProps) {
                     placeholder="Place"
                     label="Game Location Place"
                     variation="quiet"
-                    value={formCreateGameState.gameLocationPlace}
+                    value={formCreateGameState.gameLocationPlace || ''}
                     required
                 />
                 <SelectField
                     className={"city-dropdown"}
                     label="Game Location City"
                     placeholder="choose a city"
-                    value={formCreateGameState.gameLocationCity}
+                    value={formCreateGameState.gameLocationCity || ''}
                     onChange={(event) => setInputCreateGame('gameLocationCity', event.target.value)}>
-                    {cities.map((city, index) => (
-                        <option key={city.id} value={city.cityName}>{city.cityName}</option>
+                    {cities.map((city) => (
+                        <option key={city.id} value={city.cityName || ''}>{city.cityName}</option>
                     ))}
                 </SelectField>
                 <TextField
@@ -315,7 +311,7 @@ export default function GameForm(props: GameFormProps) {
                     placeholder="game win message"
                     label="Game Win Message"
                     variation="quiet"
-                    value={formCreateGameState.gameWinMessage}
+                    value={formCreateGameState.gameWinMessage || ''}
                 />
                 <TextField
                     onChange={(event) => setInputCreateGame('gameDescription', event.target.value)}
@@ -323,7 +319,7 @@ export default function GameForm(props: GameFormProps) {
                     placeholder="Game Description (on Game Card)"
                     label="Game Description (on Game Card)"
                     variation="quiet"
-                    value={formCreateGameState.gameDescription}
+                    value={formCreateGameState.gameDescription || ''}
                     required
                 />
                 <TextField
@@ -332,7 +328,7 @@ export default function GameForm(props: GameFormProps) {
                     placeholder="Game Goals (on Game Card)"
                     label="Game Goals (on Game Card)"
                     variation="quiet"
-                    value={formCreateGameState.gameGoals}
+                    value={formCreateGameState.gameGoals || ''}
                 />
                 <TextField
                     onChange={(event) => setInputCreateGame('gameLevel', event.target.value)}
@@ -340,7 +336,7 @@ export default function GameForm(props: GameFormProps) {
                     placeholder="Game Level"
                     label="Game Level"
                     variation="quiet"
-                    value={formCreateGameState.gameLevel}
+                    value={formCreateGameState.gameLevel || ''}
                 />
                 <TextField
                     onChange={(event) => setInputCreateGame('walkingDistance', event.target.value)}
@@ -348,7 +344,7 @@ export default function GameForm(props: GameFormProps) {
                     placeholder="Walking Distance"
                     label="Walking Distance"
                     variation="quiet"
-                    value={formCreateGameState.walkingDistance}
+                    value={formCreateGameState.walkingDistance || ''}
                 />
                 <TextAreaField
                     autoComplete="off"
@@ -361,10 +357,10 @@ export default function GameForm(props: GameFormProps) {
                     labelHidden={false}
                     name="GameSummary"
                     placeholder="Game Summary"
-                    rows="3"
+                    rows={3}
                     size="small"
                     wrap="nowrap"
-                    value={formCreateGameState.gameSummary}
+                    value={formCreateGameState.gameSummary || ''}
                     onChange={(e) => setInputCreateGame('gameSummary', e.currentTarget.value)}
                 />
                 <TextAreaField
@@ -378,10 +374,10 @@ export default function GameForm(props: GameFormProps) {
                     labelHidden={false}
                     name="Game Logistics Info"
                     placeholder="Game Logistics Info"
-                    rows="3"
+                    rows={3}
                     size="small"
                     wrap="nowrap"
-                    value={formCreateGameState.gameLogisticInfo}
+                    value={formCreateGameState.gameLogisticInfo || ''}
                     onChange={(e) => setInputCreateGame('gameLogisticInfo', e.currentTarget.value)}
                 />
                 <TextAreaField
@@ -395,10 +391,10 @@ export default function GameForm(props: GameFormProps) {
                     labelHidden={false}
                     name="Game Intro"
                     placeholder="Game Intro"
-                    rows="3"
+                    rows={3}
                     size="small"
                     wrap="nowrap"
-                    value={formCreateGameState.gameIntro}
+                    value={formCreateGameState.gameIntro || ''}
                     onChange={(e) => setInputCreateGame('gameIntro', e.currentTarget.value)}
                 />
                 <TextField
@@ -407,7 +403,7 @@ export default function GameForm(props: GameFormProps) {
                     placeholder="Game Designer"
                     label="Game Designer"
                     variation="quiet"
-                    value={formCreateGameState.gameDesigner}
+                    value={formCreateGameState.gameDesigner || ''}
                 />
             </Flex>
             <Flex direction="row" justifyContent="center" marginTop="20px" className={"game-form"}>

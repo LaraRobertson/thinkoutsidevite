@@ -7,44 +7,38 @@ import {
     View
 } from "@aws-amplify/ui-react";
 import React, {useContext, useEffect, useState} from "react";
-import {MyAuthContext} from "../../MyContext";
-import { uploadData } from 'aws-amplify/storage';
-import { dataService } from "../../services/dataService";
-import type { Schema } from "../../../amplify/data/resource";
+import {MyAuthContext} from "../../../MyContext.tsx";
+import { uploadData, getUrl } from 'aws-amplify/storage';
+import { dataService } from "../../../services/dataService.ts";
+import type { Schema } from "../../../../amplify/data/resource.ts";
+import {getDefaultModalContent} from "../../../utils/modalHelpers.ts";
 
 type GamePlayZone = Schema["GamePlayZone"]["type"];
 
-interface ZoneFormState {
-    gameID: string;
-    gameZoneName: string;
-    gameZoneImage: string;
-    gameZoneDescription: string;
-    longitude: string;
-    latitude: string;
-    order: number;
-    disabled: boolean;
-}
+type ZoneFormState = Omit<GamePlayZone, 'id' | 'createdAt' | 'updatedAt' | 'game' >;
 
 export default function ZoneForm() {
-    const { setModalContent, modalContent } = useContext(MyAuthContext);
-    let action = modalContent.action;
-    let zoneID = modalContent.id;
-    let gameID = modalContent.gameID;
-    let zone = modalContent.zone;
-    let gameDesigner = modalContent.gameDesigner;
+    const context = useContext(MyAuthContext);
+    if (!context) throw new Error("GameSection must be used within MyAuthContext.Provider");
+    const { setModalContent, modalContent } = context;
+    const action = modalContent.action;
+    const zoneID = modalContent.id;
+    const gameID = modalContent.gameID;
+    const gameDesigner = modalContent.gameDesigner;
 
-    const initialStateCreateZone: ZoneFormState = {
-        gameID: gameID,
+    const initialStateCreateZone: Partial<ZoneFormState> = {
+        gameID: gameID || '',
         gameZoneName: '',
         gameZoneImage: '',
         gameZoneDescription: '',
         longitude: '',
         latitude: '',
+        gameZoneIcon: '',
         order: 1,
         disabled: false
     };
-    
-    const [formCreateZoneState, setFormCreateZoneState] = useState<ZoneFormState>(initialStateCreateZone);
+
+    const [formCreateZoneState, setFormCreateZoneState] = useState<Partial<ZoneFormState>>(initialStateCreateZone);
     
     function setInputCreateZone(key: keyof ZoneFormState, value: string | number | boolean) {
         setFormCreateZoneState({ ...formCreateZoneState, [key]: value });
@@ -53,17 +47,25 @@ export default function ZoneForm() {
     useEffect(() => {
         if (action === "edit") {
             populateZoneForm();
-        } else if (action === "addBackupZone") {
-            setFormCreateZoneState({...zone, gameID: gameID});
         }
     },[]);
     
     async function populateZoneForm() {
         try {
             const client = dataService.getClient();
-            const { data: zoneFromAPI } = await client.models.GamePlayZone.get({ id: zoneID });
+            const { data: zoneFromAPI } = await client.models.GamePlayZone.get({ id: zoneID || '' });
             if (zoneFromAPI) {
-                setFormCreateZoneState(zoneFromAPI);
+                setFormCreateZoneState({
+                    gameID: zoneFromAPI.gameID || '',
+                    gameZoneName: zoneFromAPI.gameZoneName || '',
+                    gameZoneImage: zoneFromAPI.gameZoneImage || '',
+                    gameZoneDescription: zoneFromAPI.gameZoneDescription || '',
+                    longitude: zoneFromAPI.longitude || '',
+                    latitude: zoneFromAPI.latitude || '',
+                    gameZoneIcon: zoneFromAPI.gameZoneIcon || '',
+                    order: zoneFromAPI.order || 1,
+                    disabled: zoneFromAPI.disabled || false
+                });
             }
         } catch (err) {
             console.log('error fetching GamePlayZone', err);
@@ -73,16 +75,17 @@ export default function ZoneForm() {
     async function addZoneFromFile() {
         try {
             if (!formCreateZoneState.gameZoneName) return;
+            const zone = {
+                ...formCreateZoneState,
+                gameZoneName: formCreateZoneState.gameZoneName!,
+                gameID: formCreateZoneState.gameID!,
+                order: formCreateZoneState.order || 0
+            };
             const client = dataService.getAuthClient();
-            await client.models.GamePlayZone.create(formCreateZoneState);
+            await client.models.GamePlayZone.create(zone);
             setFormCreateZoneState(initialStateCreateZone);
-            setModalContent({
-                open: false,
-                content: "",
-                id: "",
-                action: "",
-                updatedDB: true
-            });
+            /* close Modal */
+            setModalContent(getDefaultModalContent());
         } catch (err) {
             console.log('error creating GamePlayZone:', err);
         }
@@ -102,8 +105,14 @@ export default function ZoneForm() {
             return;
         }*/
         try {
+            const zone = {
+                ...formCreateZoneState,
+                gameZoneName: formCreateZoneState.gameZoneName!,
+                gameID: formCreateZoneState.gameID!,
+                order: formCreateZoneState.order || 0
+            };
             const client = dataService.getAuthClient();
-            const result = await client.models.GamePlayZone.create(formCreateZoneState);
+            const result = await client.models.GamePlayZone.create(zone);
             
             if (result.errors) {
                 console.error('Errors creating zone:', result.errors);
@@ -132,8 +141,13 @@ export default function ZoneForm() {
             return;
         }
         try {
+            const zone = { ...formCreateZoneState, id: zoneID! };
+            console.log("formCreateZoneState - update zone")
+            for (const key in zone) {
+                console.log(`${key}: ${zone[key as keyof typeof zone]}`);
+            }
             const client = dataService.getAuthClient();
-            const result = await client.models.GamePlayZone.update(formCreateZoneState);
+            const result = await client.models.GamePlayZone.update(zone);
             
             if (result.errors) {
                 console.error('Errors updating zone:', result.errors);
@@ -164,10 +178,11 @@ export default function ZoneForm() {
             if (sizeInKB > 100) {
                 alert("file is too big - it is " + sizeInKB + 'KB. Must be less than 100KB');
             } else {
-                const gameDesignerCleaned = removeFunction(gameDesigner);
+                const gameDesignerCleaned = removeFunction(gameDesigner || '');
+                const filePath = "public/" + gameDesignerCleaned + "/zones/" + file.name;
                 try {
-                    const result = await uploadData({
-                        path: "public/" + gameDesignerCleaned + "/zones/" + file.name,
+                    await uploadData({
+                        path: filePath,
                         data: file,
                         options: {
                             onProgress: ({transferredBytes, totalBytes}) => {
@@ -181,10 +196,12 @@ export default function ZoneForm() {
                             }
                         }
                     }).result;
+                    
+                    const urlResult = await getUrl({ path: filePath });
+                    setInputCreateZone('gameZoneImage', urlResult.url.toString());
                 } catch (error) {
                     console.log('Error : ', error);
                 }
-                setInputCreateZone('gameZoneImage', "https://escapeoutbucket2183723-dev.s3.amazonaws.com/public/" + gameDesignerCleaned + "/zones/" + file.name);
             }
         }
     }
@@ -200,7 +217,7 @@ export default function ZoneForm() {
             <Flex direction="column" justifyContent="center" gap="1rem" className="game-form">
                 <SwitchField
                     label="disabled"
-                    isChecked={formCreateZoneState.disabled}
+                    isDisabled={formCreateZoneState.disabled || false}
                     onChange={(e) => setInputCreateZone('disabled', e.target.checked)}
                 />
                 <View>Order</View>
@@ -210,7 +227,7 @@ export default function ZoneForm() {
                     size="small"
                     width="50px"
                     onChange={(event) => setInputCreateZone('order', parseInt(event.target.value))}
-                    value={formCreateZoneState.order.toString()}
+                    value={formCreateZoneState.order?.toString() || ''}
                 />
                 <TextField
                     onChange={(event) => setInputCreateZone('gameZoneName', event.target.value)}
@@ -218,7 +235,7 @@ export default function ZoneForm() {
                     placeholder="Game Zone Name"
                     label="Game Zone Name"
                     variation="quiet"
-                    value={formCreateZoneState.gameZoneName}
+                    value={formCreateZoneState.gameZoneName || ''}
                     required
                 />
                 <TextField
@@ -227,7 +244,7 @@ export default function ZoneForm() {
                     placeholder="Game Zone Description"
                     label="Game Zone Description"
                     variation="quiet"
-                    value={formCreateZoneState.gameZoneDescription}
+                    value={formCreateZoneState.gameZoneDescription || ''}
                     required
                 />
                 <TextField
@@ -236,7 +253,7 @@ export default function ZoneForm() {
                     placeholder="latitude"
                     label="latitude"
                     variation="quiet"
-                    value={formCreateZoneState.latitude}
+                    value={formCreateZoneState.latitude || ''}
                     required
                 />
                 <TextField
@@ -245,7 +262,7 @@ export default function ZoneForm() {
                     placeholder="longitude"
                     label="longitude"
                     variation="quiet"
-                    value={formCreateZoneState.longitude}
+                    value={formCreateZoneState.longitude || ''}
                     required
                 />
                 <TextField
@@ -254,12 +271,12 @@ export default function ZoneForm() {
                     placeholder="Zone Image"
                     label="Zone Image (350px x 300px & <100kb)"
                     variation="quiet"
-                    value={formCreateZoneState.gameZoneImage}
+                    value={formCreateZoneState.gameZoneImage || ''}
                     required
                 />
-                <label>Zone Image</label>
+                <label>Zone Image (by {gameDesigner})</label>
                 <Flex direction="row" justifyContent="flex-start">
-                    <img width="50px" src={formCreateZoneState.gameZoneImage} />
+                    <img width="50px" src={formCreateZoneState.gameZoneImage || ''} />
                     {formCreateZoneState.gameZoneImage}
                 </Flex>
                 <label htmlFor="file-upload" className="custom-file-upload">

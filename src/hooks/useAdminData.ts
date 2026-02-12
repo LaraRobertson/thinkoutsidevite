@@ -3,7 +3,7 @@ import { useAuthenticator } from '@aws-amplify/ui-react';
 import type { Schema } from "../../amplify/data/resource";
 import { dataService } from "../services/dataService";
 
-export function useHomeData() {
+export function useAdminData() {
   const [todos, setTodos] = useState<Array<Schema["Todo"]["type"]>>([]);
   const [users, setUsers] = useState<Array<Schema["User"]["type"]>>([]);
   const [error, setError] = useState<string | null>(null);

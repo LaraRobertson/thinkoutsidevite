@@ -1,8 +1,4 @@
 import { dataService } from "../../services/dataService";
-import type { Schema } from "../../../amplify/data/resource";
-
-type GameStats = Schema["GameStats"]["type"];
-type GameScore = Schema["GameScore"]["type"];
 
 interface GameDetailsVar {
     email: string;
@@ -15,6 +11,7 @@ interface WaiverResult {
 }
 
 export async function checkWaiver(gameDetailsVar: GameDetailsVar): Promise<WaiverResult | null> {
+    console.log("gameDetailsVar (checkWaiver): " + JSON.stringify(gameDetailsVar));
     try {
         const client = dataService.getClient();
         

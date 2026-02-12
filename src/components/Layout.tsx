@@ -1,31 +1,36 @@
-import { Outlet} from 'react-router-dom'
+import { Outlet, useLocation} from 'react-router-dom'
 import { useAuthenticator } from '@aws-amplify/ui-react'
-import { useState } from 'react'
-import { MyAuthContext } from '../MyContext'
+import { useState, useEffect} from 'react'
+import {MyAuthContext} from '../MyContext'
 import TopNav from './TopNav'
 import Footer from './Footer'
+import { getDefaultModalContent } from '../utils/modalHelpers'
+import type { ModalContent } from '../utils/modalHelpers'
 
 export default function Layout() {
-  const { authStatus, signOut, user } = useAuthenticator()
-  const [modalContent, setModalContent] = useState({
-    open: false,
-    content: '',
-    id: '',
-    modalClass: '',
-    modalClassOpen: '',
-    action: '',
-    gameID: '',
-    zoneID: '',
-    updatedDB: false
-  })
+    const {authStatus, signOut, user} = useAuthenticator()
+    const location = useLocation()
+    const [hideNav, setHideNav] = useState(false)
+    const [isChecked, setIsChecked] = useState(false)
+    const [modalContent, setModalContent] = useState<ModalContent>(getDefaultModalContent())
+    
+    useEffect(() => {
+        /* if route is admin or game set hideNav to true */
+        if (location.pathname.includes('admin') || location.pathname.includes('game')) {
+            setHideNav(true);
+            console.log("hideNav is true");
+        } else {
+            setHideNav(false);
+        }
+    }, [location.pathname]);
 
-  return (
-    <MyAuthContext.Provider value={{ setModalContent, modalContent, user, authStatus }}>
-        <TopNav signOut={signOut} />
-        <main className={"background-dark"}>
-          <Outlet />
-        </main>
-        <Footer signOut={signOut} />
+    return (
+        <MyAuthContext.Provider value={{setModalContent, modalContent, user, authStatus, isChecked, setIsChecked}}>
+            <TopNav signOut={signOut} hideNav={hideNav}/>
+            <main>
+                <Outlet/>
+            </main>
+            <Footer signOut={signOut}  hideNav={hideNav} />
     </MyAuthContext.Provider>
   )
 }

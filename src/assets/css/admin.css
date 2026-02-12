@@ -14,6 +14,7 @@
     --amplify-components-table-data-font-size: 14px;
     --amplify-components-table-header-padding: 5px;
     --amplify-components-table-data-padding: 5px;
+    --admin-background-dark: #F0F2F5;
 }
 .admin {
     display: flex;
@@ -66,7 +67,7 @@
     left: 0px;
     height: 100%;
     min-height:100vh;
-    z-index: 999;
+    /*z-index: 999;*/
     flex: 0 0 200px;
     max-width: 200px;
     min-width: 200px;
@@ -268,4 +269,76 @@ input[type="file"] {
     .modalContent.adminModal {
         width: calc(100vw - 60px);
     }
+}
+/* flex classes */
+.flex-table {
+    display: flex;
+    flex-flow: row wrap;
+    border-left: solid 1px #d9d9d9;
+    transition: 0.5s;
+}
+.flex-table-row {
+    display: flex;
+    justify-content: left; /* Centers content horizontally (main axis) */
+    align-items: center;     /* Centers content vertically (cross axis) */
+    gap: .5rem;
+    flex-wrap: wrap;
+    background-color: white;
+    border-bottom: 1px solid black;
+    /* height: 200px;            A defined height is needed for vertical centering to be visible */
+}
+.flex-table-row div {
+    padding: .2rem;
+}
+.flex-table-row button {
+    padding: .3rem .5rem;
+    font-size: .8rem;
+}
+.flex-table-row .light {
+    background-color: white;
+}
+.flex-table-row .dark {
+    background-color: #F0F2F5;
+}
+.flex-table {
+    display: flex;
+    flex-flow: row wrap;
+    border-left: solid 1px #d9d9d9;
+    transition: 0.5s;
+}
+.flex-row {
+    width: calc(100% / 6);
+    text-align: center;
+    padding: 0.5em 0.5em;
+    border-right: solid 1px #d9d9d9;
+    border-bottom: solid 1px #d9d9d9;
+    background-color: #f4f2f1;
+    color:black;
+    font-size:.8em;
+}
+.myStats .flex-row{
+    width: calc(100% / 5);
+}
+.row-group:nth-child(even) .flex-row{
+    background: #fff;
+}
+.row-group .flex-row:hover {
+    background: #d9d9d9;
+    transition: 500ms;
+}
+.first {
+    display:flex;
+    justify-content: left;
+    gap: .5rem;
+}
+.four-width{
+    width: 50%;
+}
+.four-width-home{
+    width: 80%!important;
+}
+.background-light .admin button{
+    color: var(--color-dark);
+    background-color: var(--admin-background-dark);
+    fill: var(--color-light);
 }

@@ -1,39 +1,28 @@
 import {Button, Flex, Input, SelectField, SwitchField, TextField, View} from "@aws-amplify/ui-react";
-import React, {useContext, useEffect, useState} from "react";
-import {MyAuthContext} from "../../MyContext";
-import { dataService } from "../../services/dataService";
-import type { Schema } from "../../../amplify/data/resource";
+import {useContext, useEffect, useState} from "react";
+import {MyAuthContext} from "../../../MyContext.tsx";
+import { dataService } from "../../../services/dataService.ts";
+import type { Schema } from "../../../../amplify/data/resource.ts";
+import {getDefaultModalContent} from "../../../utils/modalHelpers.ts";
 
 type GameHint = Schema["GameHint"]["type"];
+type HintFormState = Omit<GameHint, 'id' | 'createdAt' | 'updatedAt' | 'game'>;
 
-interface HintFormState {
-    gameID: string;
-    gamePlayZoneID: string;
-    gameHintName: string;
-    gameHintDescription: string;
-    order: number;
-    disabled: boolean;
-}
-
-interface HintFormProps {
-    gamePlayZoneObject: Record<string, string>;
-}
-
-export default function HintForm(props: HintFormProps) {
+export default function HintForm() {
     const context = useContext(MyAuthContext);
-    if (!context) throw new Error("GameCard must be used within MyAuthContext.Provider");
+    if (!context) throw new Error("HintForm must be used within MyAuthContext.Provider");
     const { setModalContent, modalContent } = context;
-    let action = modalContent.action;
-    let hintID = modalContent.id;
-    let zoneID = modalContent.zoneID;
-    let gameID = modalContent.gameID;
-    let gamePlayZoneObject = props.gamePlayZoneObject;
+    const action = modalContent.action;
+    const hintID = modalContent.id;
+    const zoneID = modalContent.zoneID;
+    const gameID = modalContent.gameID;
 
     const initialStateCreateHint: HintFormState = {
-        gameID: gameID,
+        gameID: gameID || '',
         gamePlayZoneID: zoneID,
         gameHintName: '',
         gameHintDescription: '',
+        gameHintType: '',
         order: 1,
         disabled: false
     };
@@ -47,15 +36,13 @@ export default function HintForm(props: HintFormProps) {
     useEffect(() => {
         if (action === "edit") {
             populateHintForm();
-        } else if (action === "addBackupHint") {
-            setFormCreateHintState({...hint, gameID: gameID, gamePlayZoneID: zoneID});
         }
     },[]);
     
     async function populateHintForm() {
         try {
             const client = dataService.getClient();
-            const { data: hintFromAPI } = await client.models.GameHint.get({ id: hintID });
+            const { data: hintFromAPI } = await client.models.GameHint.get({ id: hintID || '' });
             if (hintFromAPI) {
                 setFormCreateHintState(hintFromAPI);
             }
@@ -122,8 +109,9 @@ export default function HintForm(props: HintFormProps) {
             return;
         }
         try {
+            const gameHint = { ...formCreateHintState, id: hintID! };
             const client = dataService.getAuthClient();
-            const result = await client.models.GameHint.update(formCreateHintState);
+            const result = await client.models.GameHint.update(gameHint);
             
             if (result.errors) {
                 console.error('Errors updating hint:', result.errors);
@@ -132,13 +120,8 @@ export default function HintForm(props: HintFormProps) {
             }
             
             setFormCreateHintState(initialStateCreateHint);
-            setModalContent({
-                open: false,
-                content: "",
-                id: "",
-                action: "",
-                updatedDB: true
-            });
+            /* close modal */
+            setModalContent(getDefaultModalContent());
             window.alert("Hint updated successfully!");
         } catch (err) {
             console.error('error updating GameHint:', err);
@@ -153,9 +136,12 @@ export default function HintForm(props: HintFormProps) {
             <View className="small">Zone ID: {formCreateHintState.gamePlayZoneID}</View>
             <Flex direction="column" justifyContent="center" gap="1rem" className="game-form">
                 <SwitchField
-                    label="disabled"
-                    isChecked={formCreateHintState.disabled}
-                    onChange={(e) => setInputCreateHint('disabled', e.target.checked)}
+                    label={formCreateHintState.disabled? "disabled" : "live"}
+                    isChecked={formCreateHintState.disabled || false}
+                    onChange={(e) => {
+                        console.log("e.target.checked: " + e.target.checked)
+                        setInputCreateHint('disabled', e.target.checked);
+                    }}
                 />
                 <View>Order</View>
                 <Input
@@ -173,7 +159,7 @@ export default function HintForm(props: HintFormProps) {
                     placeholder="Game Hint Name"
                     label="Game Hint Name"
                     variation="quiet"
-                    value={formCreateHintState.gameHintName}
+                    value={formCreateHintState.gameHintName || ''}
                     required
                 />
                 <TextField
@@ -182,9 +168,18 @@ export default function HintForm(props: HintFormProps) {
                     placeholder="Game Hint Description"
                     label="Game Hint Description"
                     variation="quiet"
-                    value={formCreateHintState.gameHintDescription}
+                    value={formCreateHintState.gameHintDescription || ''}
                     required
                 />
+                <SelectField
+                    className={"city-dropdown"}
+                    label="Game Hint Type"
+                    placeholder="choose a type"
+                    value={formCreateHintState.gameHintType || ''}
+                    onChange={(event) => setInputCreateHint('gameHintType', event.target.value)}>
+                        <option value="5">5 Minutes</option>
+                        <option value="free">free</option>
+                </SelectField>
             </Flex>
             <Flex direction="row" justifyContent="center" marginTop="20px">
                 {(action == "add") &&

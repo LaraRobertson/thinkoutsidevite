@@ -4,7 +4,7 @@ export type Game = Schema["Game"]["type"];
 export type City = Schema["City"]["type"];
 export type GamePlayZone = Schema["GamePlayZone"]["type"];
 
-export interface GameDetailsVar {
+export interface GameDetails {
     email: string;
     gameName: string;
     gameID: string;
@@ -17,17 +17,7 @@ export interface GameDetailsVar {
     gamePlayZoneImage1?: string;
     waiverSigned?: string;
     numberOfTimes?: number;
-    latitude1?: string;
-    longitude1?: string;
+    latitude?: string;
+    longitude?: string;
     gameLevel?: string;
-}
-
-export interface WaiverResult {
-    waiverSigned: boolean;
-    numberOfTimes: number;
-}
-
-export interface GameDetails {
-    waiverSigned?: string;
-    numberOfTimes?: number;
 }

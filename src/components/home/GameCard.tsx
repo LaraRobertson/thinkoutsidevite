@@ -3,14 +3,16 @@ import {useContext} from "react";
 import {checkWaiver} from "./checkWaiver";
 import {MyAuthContext} from "../../MyContext";
 import {useNavigate} from "react-router-dom";
-import type { Game, GameDetailsVar, GameDetails } from "../../types/game";
+import type { Game, GameDetails } from "../../types/game";
 
 interface GameCardProps {
     game: Game;
     setGameDetails: (gameDetails: GameDetails | null) => void;
+    hasPlayed: boolean;
+    canPlay: boolean;
 }
 
-export default function GameCard({game, setGameDetails}: GameCardProps) {
+export default function GameCard({game, setGameDetails, hasPlayed, canPlay }: GameCardProps) {
     const navigate = useNavigate();
     const {
         gameLogisticInfo,
@@ -22,57 +24,71 @@ export default function GameCard({game, setGameDetails}: GameCardProps) {
         gameLocationPlace,
         gameName,
         gameGoals,
-        gamePlayZone,
         gameType,
         id,
-        walkingDistance
+        walkingDistance,
+        latitude,
+        longitude
     } = game;
 
     const context = useContext(MyAuthContext);
     if (!context) throw new Error("GameCard must be used within MyAuthContext.Provider");
-    const { authStatus, email, gamesIDUserPlayed, gamesIDUser, setModalContent } = context;
+    const { authStatus, user, setModalContent } = context;
+    const userEmail = user?.signInDetails?.loginId;
 
-    const handleGameDetail = (gameDetailsVar: Partial<GameDetailsVar>) => {
-        setGameDetails(gameDetailsVar);
-        setModalContent({ open: true, content: "Game Detail", id: "", modalStyle: "game-details", action: "", gameID: "", zoneID: "", updatedDB: false });
+    const handleGameDetail = (gameDetails: GameDetails) => {
+        setGameDetails(gameDetails);
+        setModalContent({
+            gameDesigner: "",
+            puzzleID: "",
+            open: true, content: "Game Detail", id: "", modalStyle: "game-details", action: "", gameID: "", zoneID: "", updatedDB: false });
     };
 
-    const handleLeaderboard = (gameDetailsVar: Pick<GameDetailsVar, 'gameName' | 'gameID'>) => {
-        setGameDetails(gameDetailsVar);
-        setModalContent({ open: true, content: "Leaderboard", id: "", action: "", gameID: "", zoneID: "", updatedDB: false });
+    const handleLeaderboard = (gameDetails: GameDetails) => {
+        setGameDetails(gameDetails);
+        setModalContent({
+            gameDesigner: "",
+            puzzleID: "",
+            open: true, content: "Leaderboard", id: "", modalStyle: "game-details", action: "", gameID: "", zoneID: "", updatedDB: false });
     };
 
-    const handlePlayGameList = async (gameDetailsVar: GameDetailsVar) => {
-        if (gameDetailsVar.waiverSigned !== gameDetailsVar.gameID) {
-            const checkWaiverObject = await checkWaiver(gameDetailsVar);
+    const handlePlayGameList = async (gameDetails: GameDetails) => {
+        setGameDetails(gameDetails);
+        
+        if (gameDetails.waiverSigned !== gameDetails.gameID) {
+            console.log("checkWaiverObject: ", gameDetails);
+            const checkWaiverObject = await checkWaiver(gameDetails);
             
             if (checkWaiverObject?.waiverSigned) {
                 setGameDetails({
-                    ...gameDetailsVar,
-                    waiverSigned: gameDetailsVar.gameID,
+                    ...gameDetails,
+                    waiverSigned: gameDetails.gameID,
                     numberOfTimes: checkWaiverObject.numberOfTimes
                 });
-                setModalContent({ open: true, content: "Game Intro", id: "", modalStyle: "game-details", action: "", gameID: "", zoneID: "", updatedDB: false });
+                setModalContent({
+                    gameDesigner: "",
+                    puzzleID: "",
+                    open: true, content: "Game Intro", id: "", modalStyle: "game-details", action: "", gameID: "", zoneID: "", updatedDB: false });
             } else {
-                setGameDetails(gameDetailsVar);
-                setModalContent({ open: true, content: "Waiver", id: "", modalStyle: "game-details", action: "", gameID: "", zoneID: "", updatedDB: false });
+                setModalContent({
+                    gameDesigner: "",
+                    puzzleID: "",
+                    open: true, content: "Waiver", id: "", modalStyle: "game-details", action: "", gameID: "", zoneID: "", updatedDB: false });
             }
         } else {
-            setGameDetails(gameDetailsVar);
-            setModalContent({ open: true, content: "Game Intro", id: "", modalStyle: "game-details", action: "", gameID: "", zoneID: "", updatedDB: false });
+            setModalContent({
+                gameDesigner: "",
+                puzzleID: "",
+                open: true, content: "Game Intro", id: "", modalStyle: "game-details", action: "", gameID: "", zoneID: "", updatedDB: false });
         }
     };
-
-    const firstZone = gamePlayZone?.items?.[0];
-    const isPlayed = gamesIDUserPlayed?.includes(id);
-    const canPlay = gamesIDUser?.includes(id) || gameType === "free" || gameType === "free-test";
-    
-    const cardStyle = {
-        backgroundImage: firstZone?.gameZoneImage ? `url(${firstZone.gameZoneImage})` : undefined
-    };
+    /*
+    *  const canPlay = gamesIDUser?.includes(id) || gameType === "free" || gameType === "free-test";
+    **** may use canPlay if some games cost money but not now ****
+     */
 
     const gameDetailsData = {
-        email: email || "",
+        email: userEmail || "",
         gameName: gameName || "",
         gameID: id,
         gameLocationCity: gameLocationCity || "",
@@ -81,18 +97,16 @@ export default function GameCard({game, setGameDetails}: GameCardProps) {
         gameIntro: gameIntro || "",
         gameLogisticInfo: gameLogisticInfo || "",
         gameGoals: gameGoals || "",
-        gamePlayZoneImage1: firstZone?.gameZoneImage || "",
         waiverSigned: undefined,
         numberOfTimes: undefined,
-        latitude1: firstZone?.latitude || "",
-        longitude1: firstZone?.longitude || "",
+        latitude: latitude || "",
+        longitude: longitude || "",
         gameLevel: gameLevel || "",
     };
-    
+   //console.log("game details: " + JSON.stringify(game, null, 2))
     return (
         <Card
-            style={cardStyle}
-            className={isPlayed ? "hide" : "game-card"}
+            className={"game-card"}
             variation="elevated"
         >
             <View className="inner-game-card">
@@ -103,7 +117,8 @@ export default function GameCard({game, setGameDetails}: GameCardProps) {
                     </Text>
                 </View>
                 <View className="game-card-full">
-                    {isPlayed ? (
+                    {canPlay && <Text className="game-card-header">(can play)</Text>}
+                    {hasPlayed ? (
                         <Text className="game-card-header played">
                             {gameName} <span className="small">(played)</span>
                         </Text>
@@ -162,10 +177,7 @@ export default function GameCard({game, setGameDetails}: GameCardProps) {
                     <View className="example" marginBottom="0">
                         <Button 
                             className="button button-small show"
-                            onClick={() => handleLeaderboard({
-                                gameName: gameName || "",
-                                gameID: id
-                            })}
+                            onClick={() => handleLeaderboard(gameDetailsData)}
                         >
                             Leaderboard
                         </Button>

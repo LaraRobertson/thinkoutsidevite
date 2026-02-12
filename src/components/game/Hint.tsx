@@ -1,5 +1,4 @@
-import {Accordion, Button, Flex, Image, View} from "@aws-amplify/ui-react";
-import React, {useState} from "react";
+import {Accordion, Button, Flex, View} from "@aws-amplify/ui-react";
 import type { Schema } from "../../../amplify/data/resource";
 
 type GameHint = Schema["GameHint"]["type"];
@@ -12,14 +11,14 @@ interface HintsProps {
     gameHintVisible: Record<string, boolean>;
 }
 
-export default function Hints(props: HintsProps) {
-    console.log("Hints");
+export default function Hint(props: HintsProps) {
+    console.log("Hint");
     const { gameHint, setGameTimeHint, DangerouslySetInnerHTMLSanitized, setGameHintVisible, gameHintVisible } = props;
 
     function setGameHintVisibleFunction(key: string, value: boolean) {
         console.log("setGameHintVisibleFunction: " + key);
-        let newObject = {...gameHintVisible,[key]:value};
-        let gameHintVisibleTest = JSON.stringify(newObject);
+        const newObject = {...gameHintVisible,[key]:value};
+        const gameHintVisibleTest = JSON.stringify(newObject);
         if (gameHintVisibleTest != "{}" &&  gameHintVisibleTest != "" &&  gameHintVisibleTest != null) {
             localStorage.setItem("gameHintVisible", gameHintVisibleTest);
         }
@@ -73,7 +72,7 @@ export default function Hints(props: HintsProps) {
                         </View>
                         {/* HINTS */}
 
-                        {gameHint.map((hint,index) => (
+                        {gameHint.map((hint) => (
                             <Flex wrap="wrap" key={hint.id} aria-label={hint.id}>
                                 <View>
                                     {gameHintVisible["hint" + (hint.id)]? (

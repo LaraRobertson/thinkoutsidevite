@@ -1,9 +1,10 @@
-import React, {useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
 import { dataService } from '../../services/dataService';
-import type { Schema } from '../../../amplify/data/resource';
 import { format } from 'date-fns';
+import {Button} from "@aws-amplify/ui-react";
 
 type UserPlayingNow = {
+  gameStatsID: string;
   id: number;
   userEmail: string;
   gameName: string;
@@ -21,8 +22,29 @@ export default function HomeSection() {
     useEffect(() => {
         console.log("useeffect (fetchUserGamePlayNow) - date: " + today.toLocaleDateString('en-CA'));
         fetchUserGamePlayNow(today.toLocaleDateString('en-CA'));
+        checkGameStatsData();
     }, []);
 
+    async function checkGameStatsData() {
+        try {
+            const allStats = await dataService.getClient().models.GameStats.list();
+            console.log("Total GameStats records:", allStats.data.length);
+            console.log("GameStats data:", allStats.data);
+        } catch (err) {
+            console.log("Error checking GameStats:", err);
+        }
+    }
+
+    async function deleteStat(props: { gameStatsID: string; }) {
+        console.log("props.userID: " + props.gameStatsID);
+        try {
+            const client = dataService.getAuthClient();
+            await client.models.GameStats.delete({ id: props.gameStatsID });
+        } catch (err) {
+            console.log('error deleting stat:', err);
+        }
+        fetchUserGamePlayNow("2021-04-01");
+    }
     async function fetchUserGamePlayNowNotCompleted(date: string) {
         try {
             const gameStats = await dataService.getClient().models.GameStats.list({
@@ -34,6 +56,7 @@ export default function HomeSection() {
             
             const usersPlayingNowArray: UserPlayingNow[] = gameStats.data.map((stat, i) => ({
                 id: i,
+                gameStatsID: stat.id || '',
                 userEmail: stat.userEmail,
                 gameName: stat.gameName,
                 gameStates: stat.gameStates || '',
@@ -52,10 +75,12 @@ export default function HomeSection() {
         try {
             const gameStats = await dataService.getClient().models.GameStats.list({
                 filter: {
-                    gameStates: { eq: '{"waiverSigned":true,"completed":true}' },
+                    /*gameStates: { eq: '{"waiverSigned":true,"completed":true}' },*/
                     updatedAt: { gt: date }
                 }
             });
+            
+            console.log("Filtered GameStats count:", gameStats.data.length);
             
             const usersPlayingNowArray: UserPlayingNow[] = [];
             
@@ -63,6 +88,8 @@ export default function HomeSection() {
                 const gameScores = await dataService.getClient().models.GameScore.list({
                     filter: { gameStatsID: { eq: stat.id } }
                 });
+                
+                console.log(`GameScores for ${stat.userEmail}:`, gameScores.data);
                 
                 const completedScore = gameScores.data.find(score => score.completed);
                 if (completedScore) {
@@ -73,17 +100,41 @@ export default function HomeSection() {
                         gameStates: stat.gameStates || '',
                         city: stat.gameLocationCity || '',
                         createdAt: completedScore.createdAt || '',
-                        updatedAt: completedScore.updatedAt || ''
+                        updatedAt: completedScore.updatedAt || '',
+                        gameStatsID: stat.id || ''
                     });
+                } else {
+                    console.log(`No completed score found for ${stat.userEmail}`);
                 }
             }
             
+            console.log("Final usersPlayingNowArray:", usersPlayingNowArray);
             setUsersPlayingNow(usersPlayingNowArray);
         } catch (err) {
             console.log("error fetching GameStats:", err);
         }
     }
 
+    async function fetchUserGamePlayAll() {
+        try {
+            const gameStats = await dataService.getClient().models.GameStats.list();
+
+            const usersPlayingNowArray: UserPlayingNow[] = gameStats.data.map((stat, i) => ({
+                id: i,
+                gameStatsID: stat.id || '',
+                userEmail: stat.userEmail,
+                gameName: stat.gameName,
+                gameStates: stat.gameStates || '',
+                city: stat.gameLocationCity || '',
+                updatedAt: stat.updatedAt || '',
+                createdAt: stat.createdAt || ''
+            }));
+
+            setUsersPlayingNow(usersPlayingNowArray);
+        } catch (err) {
+            console.log("error fetching GameStats:", err);
+        }
+    }
     return (
         <>
             <h1>Dashboard</h1>
@@ -114,17 +165,29 @@ export default function HomeSection() {
                 >
                     playing now
                 </button>
+                <button
+                    onClick={() => {
+                        fetchUserGamePlayAll();
+                    }}
+                >
+                    all gameStats
+                </button>
             </div>
             <h6 style={{marginTop: '10px', marginBottom: '10px'}}>
                 {showAllTimeButton ? "Today" : "All Time"}
             </h6>
             <div><hr /></div>
             {usersPlayingNow.map((user, index) => (
-                <div key={index}>
-                    {index+1}: email: {user.userEmail} | gameName: {user.gameName} <br />
-                    city: {user.city} | gameStates: {user.gameStates}
-                    <br /> createdAt: {format(new Date(user.createdAt), "MM/dd/yyyy H:mma")} | updatedAt: {format(new Date(user.updatedAt), "MM/dd/yyyy H:mma")}<br />
-                <hr /></div>
+                <div key={index} className={(index % 2 === 0 ? "flex-table-row light" : "flex-table-row dark")}>
+                    <div><strong>{index+1}</strong>:</div>
+                    <div><strong>email</strong>: {user.userEmail} </div>
+                    <div><strong>gameName</strong>: {user.gameName}</div>
+                    <div><strong>city</strong>: {user.city} </div>
+                    <div><strong>gameStates</strong>: {user.gameStates}</div>
+                    <div><strong>createdAt</strong>: {format(new Date(user.createdAt), "MM/dd/yyyy H:mma")}</div>
+                    <div><strong>updatedAt</strong>: {format(new Date(user.updatedAt), "MM/dd/yyyy H:mma")}</div>
+                     <Button className="button"
+                              onClick={() => deleteStat({"gameStatsID": user.gameStatsID})}>Delete Stat</Button></div>
             ))}
         </>
     )

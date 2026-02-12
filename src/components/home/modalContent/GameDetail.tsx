@@ -1,17 +1,12 @@
 import {Accordion, Button, Heading, Image, View} from "@aws-amplify/ui-react";
-import React, {useState} from "react";
+import {useEffect, useState} from "react";
 import {ModalMap} from "../../Modals";
 import {Map} from "../../Map";
-import ExampleGame from "./ExampleGame";
-import ExampleGame2 from "./ExampleGame2";
-import ExampleGame3 from "./ExampleGame3";
-import ExampleGame5 from "./ExampleGame5";
-import ExampleGame4 from "./ExampleGame4";
-import ExampleGame6 from "./ExampleGame6";
-import type { GameDetailsVar } from "../../../types/game";
+import type { GameDetails } from "../../../types/game";
+import {dataService} from "../../../services/dataService.ts";
 
 interface GameDetailProps {
-    gameDetails: GameDetailsVar;
+    gameDetails: GameDetails;
     gameIntro?: string;
 }
 
@@ -21,9 +16,29 @@ interface ModalContentMap {
 }
 
 export default function GameDetail(props: GameDetailProps) {
-    const { gameDetails, gameIntro } = props;
+    const { gameDetails } = props;
     const [modalContentMap, setModalContentMap] = useState<ModalContentMap>({open: false, content: ""});
-    
+    const [gamePlayZoneImage, setGamePlayZoneImage] = useState<string | undefined>(undefined);
+    useEffect(() => {
+        const fetchGamePlayZoneImage = async () => {
+            try {
+                const client = dataService.getClient();
+                const { data: zones } = await client.models.GamePlayZone.list({
+                    filter: {
+                        gameID: { eq: gameDetails.gameID },
+                        order: { eq: 1 }
+                    }
+                });
+                if (zones.length > 0 && zones[0].gameZoneImage) {
+                    setGamePlayZoneImage(zones[0].gameZoneImage);
+                }
+            } catch (err) {
+                console.error("Error fetching GamePlayZone image:", err);
+            }
+        };
+
+        fetchGamePlayZoneImage();
+    }, []);
     return (
         <View className="game-details-content">
             <Heading level={5}>Goal:</Heading>
@@ -34,7 +49,7 @@ export default function GameDetail(props: GameDetailProps) {
             <View className="end-paragraph">{gameDetails.gameSummary}</View>
             <Heading level={5}>This Game Starts Here at Zone 1:</Heading>
             <View className="end-paragraph">
-                <Image maxHeight="150px" src={gameDetails.gamePlayZoneImage1}/><br />
+                <Image alt={gameDetails.gameName} maxHeight="100px" src={gamePlayZoneImage}/><br />
                 <Button className="quit-button dark"
                         onClick={() => setModalContentMap({
                             open: true,
@@ -44,7 +59,7 @@ export default function GameDetail(props: GameDetailProps) {
                 <br />You must find the other Zone Locations while playing the game.<br /><br />
             </View>
             <ModalMap isOpen={modalContentMap.open} setModalContentMap={setModalContentMap}>
-                {(modalContentMap.content === "Map") && <Map gameDetailsVar={gameDetails}/>}
+                {(modalContentMap.content === "Map") && <Map gameDetails={gameDetails} gameIntro={true}/>}
             </ModalMap>
             <Accordion.Container allowMultiple defaultValue={['logistics']}>
                 <Accordion.Item value="layout">
@@ -54,12 +69,7 @@ export default function GameDetail(props: GameDetailProps) {
                     </Accordion.Trigger>
                     <Accordion.Content>
                         <View>
-                          <ExampleGame />
-                            <ExampleGame2 />
-                            <ExampleGame3 />
-                            <ExampleGame4 />
-                            <ExampleGame5 />
-                            <ExampleGame6 />
+                            Maybe show animated gif of someone playing
                         </View>
                     </Accordion.Content>
                 </Accordion.Item>
@@ -104,9 +114,9 @@ export default function GameDetail(props: GameDetailProps) {
                         </View>
                     </Accordion.Content>
                 </Accordion.Item>
-                <Accordion.Item value="Hints">
+                <Accordion.Item value="Hint">
                     <Accordion.Trigger>
-                        <strong>Hints</strong>
+                        <strong>Hint</strong>
                         <Accordion.Icon/>
                     </Accordion.Trigger>
                     <Accordion.Content>

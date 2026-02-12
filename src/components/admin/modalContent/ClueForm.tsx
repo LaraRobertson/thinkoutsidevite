@@ -1,52 +1,38 @@
 import {
     Button,
     Flex,
-    Image,
     Input,
     SelectField,
     SwitchField,
-    TextAreaField,
     TextField,
     View
 } from "@aws-amplify/ui-react";
 import React, {useContext, useEffect, useState} from "react";
-import {MyAuthContext} from "../../MyContext";
-import {uploadData} from "aws-amplify/storage";
-import {IconClueDisplay} from "../sharedComponents";
-import { dataService } from "../../services/dataService";
-import type { Schema } from "../../../amplify/data/resource";
+import {MyAuthContext} from "../../../MyContext.tsx";
+import {getUrl, uploadData} from "aws-amplify/storage";
+import {IconClueDisplay} from "../../sharedComponents.tsx";
+import { dataService } from "../../../services/dataService.ts";
+import type { Schema } from "../../../../amplify/data/resource.ts";
+import {getDefaultModalContent} from "../../../utils/modalHelpers.ts";
 
 type GameClue = Schema["GameClue"]["type"];
 
-interface ClueFormState {
-    gameID: string;
-    gamePlayZoneID: string;
-    gameClueName: string;
-    gameClueImage: string;
-    gameClueText: string;
-    gameClueIcon: string;
-    order: number;
-    disabled: boolean;
-}
+type ClueFormState = Omit<GameClue, 'id' | 'createdAt' | 'updatedAt' | 'game'>;
 
-interface ClueFormProps {
-    gamePlayZoneObject: Record<string, string>;
-}
-
-export default function ClueForm(props: ClueFormProps) {
+export default function ClueForm() {
     const context = useContext(MyAuthContext);
-    if (!context) throw new Error("GameCard must be used within MyAuthContext.Provider");
+    if (!context) throw new Error("ClueForm must be used within MyAuthContext.Provider");
     const { setModalContent, modalContent } = context;
 
     console.log("zoneID (clue form): " + modalContent.zoneID);
-    let action = modalContent.action;
-    let clueID = modalContent.id;
-    let zoneID = modalContent.zoneID;
-    let gameID = modalContent.gameID;
-    let gamePlayZoneObject = props.gamePlayZoneObject;
+    const action = modalContent.action;
+    const clueID = modalContent.id;
+    const zoneID = modalContent.zoneID;
+    const gameID = modalContent.gameID;
+    const gameDesigner = modalContent.gameDesigner;
 
     const initialStateCreateClue: ClueFormState = {
-        gameID: gameID,
+        gameID: gameID || '',
         gamePlayZoneID: zoneID,
         gameClueName: '',
         gameClueImage: '',
@@ -56,8 +42,8 @@ export default function ClueForm(props: ClueFormProps) {
         disabled: false
     };
     
-    const [formCreateClueState, setFormCreateClueState] = useState<ClueFormState>(initialStateCreateClue);
-    
+    const [formCreateClueState, setFormCreateClueState] = useState<Partial<ClueFormState>>(initialStateCreateClue);
+
     function setInputCreateClue(key: keyof ClueFormState, value: string | number | boolean) {
         setFormCreateClueState({ ...formCreateClueState, [key]: value });
     }
@@ -65,47 +51,18 @@ export default function ClueForm(props: ClueFormProps) {
     useEffect(() => {
         if (action === "edit") {
             populateClueForm();
-        } else if (action === "addBackupClue") {
-            setFormCreateClueState(clue);
-            console.log("clue: " + JSON.stringify(clue));
-            let key = "gameID";
-            let value = gameID;
-            let key2 = "gamePlayZoneID";
-            let value2 = zoneID;
-            setFormCreateClueState({...clue,[key]:value,[key2]:value2});
-            console.log("clue2: " + JSON.stringify(formCreateClueState));
         }
     },[]);
     
     async function populateClueForm() {
         try {
             const client = dataService.getClient();
-            const { data: cluesFromAPI } = await client.models.GameClue.get({ id: clueID });
+            const { data: cluesFromAPI } = await client.models.GameClue.get({ id: clueID || '' });
             if (cluesFromAPI) {
                 setFormCreateClueState(cluesFromAPI);
             }
         } catch (err) {
             console.log('error fetching getGameClue', err);
-        }
-    }
-    
-    async function addClueFromFile() {
-        try {
-            if (!formCreateClueState.gameID || !formCreateClueState.gameClueName) return;
-            const gameClue = { ...formCreateClueState };
-            console.log("addClue - gameClue: " + gameClue);
-            setFormCreateClueState(initialStateCreateClue);
-            const client = dataService.getAuthClient();
-            await client.models.GameClue.create(gameClue);
-            setModalContent({
-                open: false,
-                content: "",
-                id: "",
-                action: "",
-                updatedDB:true
-            })
-        } catch (err) {
-            console.log('error creating clue:', err);
         }
     }
     
@@ -119,7 +76,13 @@ export default function ClueForm(props: ClueFormProps) {
             return;
         }
         try {
-            const gameClue = { ...formCreateClueState };
+            const gameClue = { ...formCreateClueState,
+                gameClueName: formCreateClueState.gameClueName!,
+                gameClueText: formCreateClueState.gameClueText!,
+                gamePlayZoneID: formCreateClueState.gamePlayZoneID!,
+                gameID: formCreateClueState.gameID!,
+                order: formCreateClueState.order || 0
+            };
             const client = dataService.getAuthClient();
             const result = await client.models.GameClue.create(gameClue);
             
@@ -128,15 +91,10 @@ export default function ClueForm(props: ClueFormProps) {
                 window.alert("Error creating clue: " + JSON.stringify(result.errors));
                 return;
             }
-            
+
             setFormCreateClueState(initialStateCreateClue);
-            setModalContent({
-                open: false,
-                content: "",
-                id: "",
-                action: "",
-                updatedDB:true
-            });
+            /* close modal */
+            setModalContent(getDefaultModalContent());
             window.alert("Clue created successfully!");
         } catch (err) {
             console.error('error creating clue:', err);
@@ -150,7 +108,7 @@ export default function ClueForm(props: ClueFormProps) {
             return;
         }
         try {
-            const gameClue = { ...formCreateClueState } as any;
+            const gameClue = { ...formCreateClueState, id: clueID! };
             const client = dataService.getAuthClient();
             const result = await client.models.GameClue.update(gameClue);
             
@@ -161,40 +119,28 @@ export default function ClueForm(props: ClueFormProps) {
             }
             
             setFormCreateClueState(initialStateCreateClue);
-            setModalContent({
-                open: false,
-                content: "",
-                id: "",
-                action: "",
-                updatedDB:true
-            });
+            /* close modal */
+            setModalContent(getDefaultModalContent());
             window.alert("Clue updated successfully!");
         } catch (err) {
             console.error('error updating GameClue:', err);
             window.alert("Error updating clue: " + err);
         }
     }
-    
+
     async function handleGameClueImageChange(e: React.ChangeEvent<HTMLInputElement>) {
-        console.log("uploaded file: " + e.target.files?.[0]?.name);
         if (e?.target?.files) {
             const file = e.target.files[0];
-            var fileSize = file.size;
-            var sizeInKB = Math.round(fileSize / 1024);
-            var sizeInMB = Math.round(fileSize / (1024 * 1024));
+            const sizeInKB = Math.round(file.size / 1024);
 
-            console.log('File Size: ' + fileSize + ' bytes');
-            console.log('File Size: ' + sizeInKB + ' KB');
-            console.log('File Size: ' + sizeInMB + ' MB');
             if (sizeInKB > 100) {
                 alert("file is too big - it is " + sizeInKB + 'KB. Must be less than 100KB');
             } else {
-                console.log("gameDesigner: " + gameDesigner);
-                let gameDesignerCleaned = removeFunction(gameDesigner);
-                console.log("gameDesigner (cleaned): " + gameDesignerCleaned);
+                const gameDesignerCleaned = removeFunction(gameDesigner || '');
+                const filePath = "public/" + gameDesignerCleaned + "/clues/" + file.name;
                 try {
-                    const result = await uploadData({
-                        path: "public/" + gameDesignerCleaned + "/clues/" + file.name,
+                    await uploadData({
+                        path: filePath,
                         data: file,
                         options: {
                             onProgress: ({transferredBytes, totalBytes}) => {
@@ -208,11 +154,12 @@ export default function ClueForm(props: ClueFormProps) {
                             }
                         }
                     }).result;
-                    console.log('Path from Response: ', result.path);
+
+                    const urlResult = await getUrl({ path: filePath });
+                    setInputCreateClue('gameClueImage', urlResult.url.toString());
                 } catch (error) {
                     console.log('Error : ', error);
                 }
-                setInputCreateClue('gameClueImage', "https://escapeoutbucket2183723-dev.s3.amazonaws.com/public/" + gameDesignerCleaned + "/clues/" + file.name)
             }
         }
     }
@@ -228,8 +175,8 @@ export default function ClueForm(props: ClueFormProps) {
             <View className={"small"}>Zone ID: {formCreateClueState.gamePlayZoneID}</View>
             <Flex direction="column" justifyContent="center" gap="1rem" className={"game-form"}>
                 <SwitchField
-                    label="disabled"
-                    isChecked={formCreateClueState.disabled}
+                    label={formCreateClueState.disabled? "disabled" : "live"}
+                    isChecked={formCreateClueState.disabled || false}
                     onChange={(e) => {
                         console.log("e.target.checked: " + e.target.checked)
                         setInputCreateClue('disabled', e.target.checked);
@@ -241,7 +188,7 @@ export default function ClueForm(props: ClueFormProps) {
                     size="small"
                     width="50px"
                     onChange={(event) => setInputCreateClue('order', parseInt(event.target.value))}
-                    value={formCreateClueState.order.toString()}
+                    value={formCreateClueState.order?.toString() || ''}
                 />
                 <TextField
                     onChange={(event) => setInputCreateClue('gameClueName', event.target.value)}
@@ -249,7 +196,7 @@ export default function ClueForm(props: ClueFormProps) {
                     placeholder="Game Clue Name"
                     label="Game Clue Name"
                     variation="quiet"
-                    value={formCreateClueState.gameClueName}
+                    value={formCreateClueState.gameClueName || ''}
                     required
                 />
                 <TextField
@@ -258,14 +205,14 @@ export default function ClueForm(props: ClueFormProps) {
                     placeholder="Game Clue Text"
                     label="Game Clue Text"
                     variation="quiet"
-                    value={formCreateClueState.gameClueText}
+                    value={formCreateClueState.gameClueText || ''}
                     required
                 />
                 <SelectField
                     className={"city-dropdown"}
                     label="Game Clue Icon"
                     placeholder="choose an icon"
-                    value={formCreateClueState.gameClueIcon}
+                    value={formCreateClueState.gameClueIcon || ''}
                     onChange={(event) => setInputCreateClue('gameClueIcon', event.target.value)}>
                         <option key={"1"} value={"clueIcon"}>clueIcon</option>
                         <option key={"2"} value={"tornPaper"}>tornPaper</option>
@@ -274,19 +221,19 @@ export default function ClueForm(props: ClueFormProps) {
                     <option key={"5"} value={"clueNoteIcon"}>clueNoteIcon</option>
                     <option key={"6"} value={"diary"}>diary</option>
                 </SelectField>
-                <IconClueDisplay hide="true" gameClueIcon={formCreateClueState.gameClueIcon}/>
+                <IconClueDisplay hide="true" gameClueIcon={formCreateClueState.gameClueIcon || ''}/>
                 <TextField
                     onChange={(event) => setInputCreateClue('gameClueImage', event.target.value)}
                     name="gameClueImage"
                     placeholder="Game Clue Image"
                     label="Game Clue Image"
                     variation="quiet"
-                    value={formCreateClueState.gameClueImage}
+                    value={formCreateClueState.gameClueImage || ''}
                     required
                 />
                 <label>Game Clue Image</label>
                 <Flex direction="row" justifyContent="flex-start">
-                    <img width="50px" src={formCreateClueState.gameClueImage} />
+                    <img width="50px" src={formCreateClueState.gameClueImage || ''} />
                     {formCreateClueState.gameClueImage}</Flex>
                 <label htmlFor="file-upload" className="custom-file-upload">
                     Upload File
@@ -299,11 +246,6 @@ export default function ClueForm(props: ClueFormProps) {
                     <Button id="createClue" className="show" onClick={addClue}
                             variation="primary">
                         Create Clue
-                    </Button>}
-                    {(action == "addBackupClue") &&
-                    <Button id="createClue" className="show" onClick={addClueFromFile}
-                            variation="primary">
-                        Create Clue from File
                     </Button>}
                     {(action == "edit") &&
                     <Button id="updateClue" className="show" onClick={updateClue}

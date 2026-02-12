@@ -1,51 +1,39 @@
-import {Button, Flex, Input, SelectField, SwitchField, TextField, View} from "@aws-amplify/ui-react";
+import {Button, Flex, Input, SwitchField, TextField, View} from "@aws-amplify/ui-react";
 import React, {useContext, useEffect, useState} from "react";
-import {MyAuthContext} from "../../MyContext";
-import {uploadData} from "aws-amplify/storage";
-import { dataService } from "../../services/dataService";
-import type { Schema } from "../../../amplify/data/resource";
+import {MyAuthContext} from "../../../MyContext.tsx";
+import {getUrl, uploadData} from "aws-amplify/storage";
+import { dataService } from "../../../services/dataService.ts";
+import type { Schema } from "../../../../amplify/data/resource.ts";
+import {getDefaultModalContent} from "../../../utils/modalHelpers.ts";
 
 type GamePuzzle = Schema["GamePuzzle"]["type"];
 
-interface PuzzleFormState {
-    gameID: string;
-    gamePlayZoneID: string;
-    puzzleName: string;
-    puzzleClueRevealed: string;
-    puzzleClueText: string;
-    winGame: boolean;
-    order: number;
-    disabled: boolean;
-}
+type PuzzleFormState = Omit<GamePuzzle, 'id' | 'createdAt' | 'updatedAt' | 'textField' | 'game'>;
 
-interface PuzzleFormProps {
-    formCreateGameStateBackup: any;
-}
-
-export default function PuzzleForm(props: PuzzleFormProps) {
+export default function PuzzleForm() {
     const context = useContext(MyAuthContext);
     if (!context) throw new Error("GameCard must be used within MyAuthContext.Provider");
     const { setModalContent, modalContent } = context;
-    let action = modalContent.action;
-    let puzzleID = modalContent.id;
-    let zoneID = modalContent.zoneID;
-    let gameID = modalContent.gameID;
+    const action = modalContent.action;
+    const puzzleID = modalContent.id;
+    const zoneID = modalContent.zoneID;
+    const gameID = modalContent.gameID;
+    const gameDesigner = modalContent.gameDesigner;
     console.log("zoneID: " + zoneID);
     /* not sure why playzoneobject is here */
    /* let gamePlayZoneObject = props.gamePlayZoneObject;*/
-    
-    const initialStateCreatePuzzle: PuzzleFormState = {
-        gameID: gameID,
-        gamePlayZoneID: zoneID,
+
+    const initialStateCreatePuzzle: Partial<PuzzleFormState> = {
+        gameID: gameID || '',
+        gamePlayZoneID: zoneID || '',
         puzzleName: '',
-        puzzleClueRevealed: '',
+        puzzleImage: '',
         puzzleClueText: '',
-        winGame: false,
         order: 1,
         disabled: false
     };
     
-    const [formCreatePuzzleState, setFormCreatePuzzleState] = useState<PuzzleFormState>(initialStateCreatePuzzle);
+    const [formCreatePuzzleState, setFormCreatePuzzleState] = useState<Partial<PuzzleFormState>>(initialStateCreatePuzzle);
     
     function setInputCreatePuzzle(key: keyof PuzzleFormState, value: string | number | boolean) {
         setFormCreatePuzzleState({ ...formCreatePuzzleState, [key]: value });
@@ -54,10 +42,6 @@ export default function PuzzleForm(props: PuzzleFormProps) {
     useEffect(() => {
         if (action === "edit") {
             populatePuzzleForm();
-        } else if (action === "addBackupPuzzle") {
-            /* not sure...
-            setFormCreatePuzzleState({...puzzle, gameID: gameID, gamePlayZoneID: zoneID});
-            */
         }
     },[]);
     
@@ -65,30 +49,12 @@ export default function PuzzleForm(props: PuzzleFormProps) {
         console.log("poplulate puzzle form");
         try {
             const client = dataService.getClient();
-            const { data: puzzleFromAPI } = await client.models.GamePuzzle.get({ id: puzzleID });
+            const { data: puzzleFromAPI } = await client.models.GamePuzzle.get({ id: puzzleID || '' });
             if (puzzleFromAPI) {
                 setFormCreatePuzzleState(puzzleFromAPI);
             }
         } catch (err) {
             console.log('error fetching GamePuzzle', err);
-        }
-    }
-    
-    async function addPuzzleFromFile() {
-        try {
-            if (!formCreatePuzzleState.puzzleName) return;
-            const client = dataService.getAuthClient();
-            await client.models.GamePuzzle.create(formCreatePuzzleState);
-            setFormCreatePuzzleState(initialStateCreatePuzzle);
-            setModalContent({
-                open: false,
-                content: "",
-                id: "",
-                action: "",
-                updatedDB: true
-            });
-        } catch (err) {
-            console.log('error creating GamePuzzle:', err);
         }
     }
     
@@ -102,8 +68,15 @@ export default function PuzzleForm(props: PuzzleFormProps) {
             return;
         }
         try {
+            const puzzle = {
+                ...formCreatePuzzleState,
+                puzzleName: formCreatePuzzleState.puzzleName!,
+                gamePlayZoneID: formCreatePuzzleState.gamePlayZoneID!,
+                gameID: formCreatePuzzleState.gameID!,
+                order: formCreatePuzzleState.order || 0
+            };
             const client = dataService.getAuthClient();
-            const result = await client.models.GamePuzzle.create(formCreatePuzzleState);
+            const result = await client.models.GamePuzzle.create(puzzle);
             
             if (result.errors) {
                 console.error('Errors creating puzzle:', result.errors);
@@ -112,13 +85,8 @@ export default function PuzzleForm(props: PuzzleFormProps) {
             }
             
             setFormCreatePuzzleState(initialStateCreatePuzzle);
-            setModalContent({
-                open: false,
-                content: "",
-                id: "",
-                action: "",
-                updatedDB: true
-            });
+            /* close modal */
+            setModalContent(getDefaultModalContent());
             window.alert("Puzzle created successfully!");
         } catch (err) {
             console.error('error creating GamePuzzle:', err);
@@ -132,8 +100,13 @@ export default function PuzzleForm(props: PuzzleFormProps) {
             return;
         }
         try {
+            const puzzle = { ...formCreatePuzzleState, id: puzzleID! };
+            console.log("formCreateGameState - update game")
+            for (const key in puzzle) {
+                console.log(`${key}: ${puzzle[key as keyof typeof puzzle]}`);
+            }
             const client = dataService.getAuthClient();
-            const result = await client.models.GamePuzzle.update(formCreatePuzzleState);
+            const result = await client.models.GamePuzzle.update(puzzle);
             
             if (result.errors) {
                 console.error('Errors updating puzzle:', result.errors);
@@ -142,21 +115,14 @@ export default function PuzzleForm(props: PuzzleFormProps) {
             }
             
             setFormCreatePuzzleState(initialStateCreatePuzzle);
-            setModalContent({
-                open: false,
-                content: "",
-                id: "",
-                action: "",
-                updatedDB: true
-            });
+            setModalContent(getDefaultModalContent());
             window.alert("Puzzle updated successfully!");
         } catch (err) {
             console.error('error updating GamePuzzle:', err);
             window.alert("Error updating puzzle: " + err);
         }
     }
-
-    async function handleGamePuzzleClueImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    async function handlePuzzleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
         if (e?.target?.files) {
             const file = e.target.files[0];
             const sizeInKB = Math.round(file.size / 1024);
@@ -164,10 +130,11 @@ export default function PuzzleForm(props: PuzzleFormProps) {
             if (sizeInKB > 100) {
                 alert("file is too big - it is " + sizeInKB + 'KB. Must be less than 100KB');
             } else {
-                const gameDesignerCleaned = removeFunction(gameDesigner);
+                const gameDesignerCleaned = removeFunction(gameDesigner || '');
+                const filePath = "public/" + gameDesignerCleaned + "/puzzles/" + file.name;
                 try {
-                    const result = await uploadData({
-                        path: "public/" + gameDesignerCleaned + "/puzzles/" + file.name,
+                    await uploadData({
+                        path: filePath,
                         data: file,
                         options: {
                             onProgress: ({transferredBytes, totalBytes}) => {
@@ -181,10 +148,12 @@ export default function PuzzleForm(props: PuzzleFormProps) {
                             }
                         }
                     }).result;
+
+                    const urlResult = await getUrl({ path: filePath });
+                    setInputCreatePuzzle('puzzleImage', urlResult.url.toString());
                 } catch (error) {
                     console.log('Error : ', error);
                 }
-                setInputCreatePuzzle('puzzleClueRevealed', "https://escapeoutbucket2183723-dev.s3.amazonaws.com/public/" + gameDesignerCleaned + "/puzzles/" + file.name);
             }
         }
     }
@@ -200,14 +169,12 @@ export default function PuzzleForm(props: PuzzleFormProps) {
             <View className="small">Zone ID: {formCreatePuzzleState.gamePlayZoneID}</View>
             <Flex direction="column" justifyContent="center" gap="1rem" className="game-form">
                 <SwitchField
-                    label="disabled"
-                    isChecked={formCreatePuzzleState.disabled}
-                    onChange={(e) => setInputCreatePuzzle('disabled', e.target.checked)}
-                />
-                <SwitchField
-                    label="winGame"
-                    isChecked={formCreatePuzzleState.winGame}
-                    onChange={(e) => setInputCreatePuzzle('winGame', e.target.checked)}
+                    label={formCreatePuzzleState.disabled? "disabled" : "live"}
+                    isChecked={formCreatePuzzleState.disabled || false}
+                    onChange={(e) => {
+                        console.log("e.target.checked: " + e.target.checked)
+                        setInputCreatePuzzle('disabled', e.target.checked);
+                    }}
                 />
                 <Input
                     name="order"
@@ -215,7 +182,7 @@ export default function PuzzleForm(props: PuzzleFormProps) {
                     size="small"
                     width="50px"
                     onChange={(event) => setInputCreatePuzzle('order', parseInt(event.target.value))}
-                    value={formCreatePuzzleState.order.toString()}
+                    value={formCreatePuzzleState.order?.toString() || ''}
                 />
                 <TextField
                     onChange={(event) => setInputCreatePuzzle('puzzleName', event.target.value)}
@@ -223,7 +190,7 @@ export default function PuzzleForm(props: PuzzleFormProps) {
                     placeholder="Puzzle Name"
                     label="Puzzle Name"
                     variation="quiet"
-                    value={formCreatePuzzleState.puzzleName}
+                    value={formCreatePuzzleState.puzzleName || ''}
                     required
                 />
                 <TextField
@@ -232,34 +199,22 @@ export default function PuzzleForm(props: PuzzleFormProps) {
                     placeholder="Puzzle Clue Text (revealed)"
                     label="Clue Text Revealed"
                     variation="quiet"
-                    value={formCreatePuzzleState.puzzleClueText}
-                />
-                <TextField
-                    onChange={(event) => setInputCreatePuzzle('puzzleClueRevealed', event.target.value)}
-                    name="puzzleClueRevealed"
-                    placeholder="Puzzle Clue Revealed (image)"
-                    label="Puzzle Image Revealed"
-                    variation="quiet"
-                    value={formCreatePuzzleState.puzzleClueRevealed}
+                    value={formCreatePuzzleState.puzzleClueText || ''}
                 />
                 <label>Puzzle Image Revealed</label>
                 <Flex direction="row" justifyContent="flex-start">
-                    <img width="50px" src={formCreatePuzzleState.puzzleClueRevealed} />
-                    {formCreatePuzzleState.puzzleClueRevealed}
+                    <img width="50px" src={formCreatePuzzleState.puzzleImage || ''} />
+                    {formCreatePuzzleState.puzzleImage}
                 </Flex>
                 <label htmlFor="file-upload" className="custom-file-upload">
                     Upload File
                 </label>
-                <input id="file-upload" type="file" accept="image/*" onChange={handleGamePuzzleClueImageChange} />
+                <input id="file-upload" type="file" accept="image/*" onChange={handlePuzzleImageChange} />
             </Flex>
             <Flex direction="row" justifyContent="center" marginTop="20px" className="game-form">
                 {(action == "add") &&
                     <Button id="createPuzzle" className="show" onClick={addPuzzle} variation="primary">
                         Create Puzzle
-                    </Button>}
-                {(action == "addBackupPuzzle") &&
-                    <Button id="createPuzzle" className="show" onClick={addPuzzleFromFile} variation="primary">
-                        Create Puzzle From File
                     </Button>}
                 {(action == "edit") &&
                     <Button id="updatePuzzle" className="show" onClick={updatePuzzle} variation="primary">

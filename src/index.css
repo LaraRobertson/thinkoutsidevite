@@ -47,11 +47,11 @@ body {
 .red-alert {
   color: var(--red-alert);
 }
-.green-background {
-  color:#010101;
-  background-color: var(--active-link);
+.green-background-link {
+  color:#010101 !important;
+  background-color: var(--active-link) !important;
 }
-.dark-background {
+.dark-background-link {
   color: var(--green-link);
   background-color: var(--background-dark);
 }
@@ -67,6 +67,15 @@ body {
   border-radius: 2rem;
   padding: .6rem 1.1rem .8rem 1.1rem;
   margin: 0 1rem;
+  font-weight: 600;
+}
+@media screen and (max-width: 768px) {
+  .button {
+    padding:.5rem .7rem;
+  }
+  a.button {
+    font-size: 1rem;
+  }
 }
 #root {
   margin: 0 auto;
@@ -75,18 +84,21 @@ body {
   width:100vw;
 }
 
-.background-dark {
+.background-dark{
   color: var(--color-light);
   background-color: var(--body-background-dark);
+  fill: var(--color-light);
 }
 .background-light {
   color: var(--color-dark);
   background-color: var(--body-background-light);
+  fill: var(--color-dark);
 }
 main {
   display: flex;
   flex-direction: column;
   align-items: stretch; /* automatically stretch along cross axis */
+  background-color: var(--background-dark);
   min-height: 100vh;
 }
 .main-container {
@@ -103,9 +115,9 @@ main {
 }
 
 header, footer {
-  display: flex;
+  /*display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: center;*/
   padding: 2rem 0;
   border-bottom-color: #8585851f;
   background: linear-gradient(180deg, rgb(0, 0, 0) 0%, rgb(11, 68, 29) 100%);
@@ -128,6 +140,9 @@ header, footer {
   align-items: center;
   gap: 1rem;
 }
+.copyright {
+  color: var(--green-link);
+}
 
 button {
   border-radius: 8px;
@@ -137,11 +152,10 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
-  color: white;
 }
+
 button:hover {
   border-color: var(--active-link);
 }
@@ -277,7 +291,9 @@ a {
   font-weight: 700;
   color: var(--green-link)
 }
-
+.hero.main-content {
+  padding-top: 0;
+}
 .hero h5 {
   color: var(--color-light);
   font-size: larger;
@@ -292,7 +308,7 @@ a {
 .hero-column-container {
   display: flex;
   gap: 1rem;
-  flex-wrap: no-wrap;
+  flex-wrap: nowrap;
 
 }
 .hero-column {

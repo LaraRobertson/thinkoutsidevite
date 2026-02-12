@@ -1,4 +1,3 @@
-import React from "react";
 import { dataService } from "../services/dataService";
 import type { NavigateFunction } from "react-router-dom";
 
@@ -10,28 +9,6 @@ export function setGameNotesFunction(gameNotes: string, setGameNotes: (notes: st
     console.log("gameNotes: " + gameNotes);
     setGameNotes(gameNotes);
     localStorage.setItem("gameNotes", gameNotes);
-}
-
-export function toggleNotes(
-    areNotesVisible: boolean, 
-    setAreNotesVisible: (visible: boolean) => void,
-    isCoverScreenVisible: boolean,
-    setIsCoverScreenVisible: (visible: boolean) => void
-): void {
-    areNotesVisible ? setAreNotesVisible(false) : setAreNotesVisible(true);
-}
-
-export function setNumPlayerFunction(numPlayerValue: string, setNumberOfPlayers: (num: string) => void): void {
-    console.log("numPlayerFunction: " + numPlayerValue);
-    localStorage.setItem("numberOfPlayers", numPlayerValue);
-    setNumberOfPlayers(numPlayerValue);
-}
-
-export function setGameTimeFunction(gameTime: number, setGameTime: (time: number) => void, gameTimeValue: string): void {
-    let gameTimeNum = Number(gameTimeValue);
-    console.log("gametimefunction: " + gameTimeNum.toFixed(2));
-    localStorage.setItem("gameTime", gameTimeNum.toFixed(2));
-    setGameTime(gameTimeNum);
 }
 
 export function setCommentsFunction(notes: string, setGameComments: (comments: string) => void): void {

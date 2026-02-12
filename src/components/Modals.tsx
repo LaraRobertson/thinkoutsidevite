@@ -2,8 +2,9 @@
 import React, { useEffect, ReactNode, useContext } from 'react';
 import ReactDOM, {createPortal} from 'react-dom';
 import {Button, Heading, View} from "@aws-amplify/ui-react";
-import {MyAuthContext, MyGameContext} from "../MyContext";
+import {MyAuthContext} from "../MyContext";
 import "../assets/css/modals.css";
+import {getDefaultModalContent} from "../utils/modalHelpers.ts";
 
 interface ModalPropsFromRight {
     isOpen: boolean;
@@ -26,6 +27,9 @@ interface ModalPropsMap{
 }
 
 export const ModalSlideFromRight: React.FC<ModalPropsFromRight> = ({ isOpen, onClose, modalStyle, children }) => {
+    /* this is basically used for nav modal - isOpen, onClose, modalStyle are not set in modalContent but are set in function
+    * because both the hamburger icon and nav open at the same time but could be changed...
+     */
     useEffect(() => {
         const handleEscape = (event: KeyboardEvent) => {
             if (event.key === 'Escape') {
@@ -38,7 +42,7 @@ export const ModalSlideFromRight: React.FC<ModalPropsFromRight> = ({ isOpen, onC
 
     return ReactDOM.createPortal(
         <div className={`modal-overlay ${isOpen ? 'is-open' : ''}`} onClick={onClose}>
-            <div className={`modal-content-right ${modalStyle} ${isOpen ? `slide-from-right || ''}` : ''}`}
+            <div className={`modal-content-right ${modalStyle || ''} ${isOpen ? 'slide-from-right' : ''}`}
                  role="dialog"
                 aria-modal="true"
                 onClick={(e) => e.stopPropagation()}
@@ -53,13 +57,14 @@ export const ModalSlideFromRight: React.FC<ModalPropsFromRight> = ({ isOpen, onC
     );
 };
 
-export const ModalSlideFromBottom: React.FC<ModalProps> = ({ isOpen, children }) => {
+export const ModalSlideFromBottom: React.FC<ModalProps> = ({ children }) => {
     const context = useContext(MyAuthContext);
     if (!context) throw new Error("GameSection must be used within MyAuthContext.Provider");
     const { setModalContent, modalContent } = context;
 
     function onClose() {
-        setModalContent({ open: false, content: "", id: "", modalStyle: "", action: "", gameID: "", zoneID: "", updatedDB: false });
+        console.log('close modal');
+        setModalContent(getDefaultModalContent());
     }
     useEffect(() => {
         const handleEscape = (event: KeyboardEvent) => {
@@ -72,8 +77,8 @@ export const ModalSlideFromBottom: React.FC<ModalProps> = ({ isOpen, children })
     }, [onClose]);
 
     return ReactDOM.createPortal(
-        <div className={`modal-overlay ${isOpen ? 'is-open' : ''}`} onClick={onClose}>
-            <div className={`modal-content-bottom ${modalContent.modalStyle} ${isOpen ? `slide-from-bottom || ''}` : ''}`}
+        <div className={`modal-overlay ${modalContent.open ? 'is-open' : ''}`} onClick={onClose}>
+            <div className={`modal-content-bottom ${modalContent.modalStyle || ''} ${modalContent.open ? 'slide-from-bottom' : ''}`}
                  role="dialog"
                  aria-modal="true"
                  onClick={(e) => e.stopPropagation()}
@@ -104,7 +109,7 @@ export const ModalMap: React.FC<ModalPropsMap> = ({ isOpen, setModalContentMap, 
 
     return ReactDOM.createPortal(
         <div className={`modal-overlay ${isOpen ? 'is-open' : ''}`} onClick={onClose}>
-            <div className={`modal-content-map  game-details ${isOpen ? `slide-from-right || ''}` : ''}`}
+            <div className={`modal-content-map  game-details ${isOpen ? 'slide-from-right' : ''}`}
                  role="dialog"
                  aria-modal="true"
                  onClick={(e) => e.stopPropagation()}
@@ -118,88 +123,21 @@ export const ModalMap: React.FC<ModalPropsMap> = ({ isOpen, setModalContentMap, 
         document.body
     );
 };
-export function ReactModal({modalContent, children}: {modalContent: any; children: ReactNode}) {
-    console.log("ReactModal");
-    let mapClass="";
-    if (modalContent.content === "Map" || modalContent.content === "MapPlaceView") mapClass="-Map";
+
+export function ReactModalFromRight({isOpen, children}: {isOpen: boolean; children: ReactNode}) {
+    console.log("ReactModalFromRight");
     const context = useContext(MyAuthContext);
     if (!context) throw new Error("GameSection must be used within MyAuthContext.Provider");
-    const { setModalContent } = context;
-    
-    function closeModal() {
-        setModalContent({open:false,content:""});
-    }
-    
-    if (!modalContent.open) return null;
-    
-    return createPortal(
-        <div className="modal-overlay is-open" onClick={closeModal}>
-            <div 
-                className={"modalContent" + mapClass}
-                role="dialog"
-                aria-modal="true"
-                onClick={(e) => e.stopPropagation()}
-            >
-                <View className={"modal-top-bar"}>
-                    <Heading level={4} marginBottom="10px" className={"modal-header"}>{modalContent.content}</Heading>
-                    <Button className="close-button-modal light" onClick={closeModal}>X</Button>
-                </View>
-                {children}
-                <View className="modal-from-top-close" textAlign={"center"} width={"100%"}>
-                    <Button className="close light" onClick={closeModal}>close</Button>
-                </View>
-            </div>
-        </div>,
-        document.getElementById("modal") || document.body
-    );
-}
+    const { setModalContent, modalContent } = context;
 
-export function ReactModalsFromRight({modalContent, children}: {modalContent: any; children: ReactNode}) {
-    const { setModalContent } = useContext(MyAuthContext);
-
-    function closeModal() {
-        setModalContent({open:false,content:""});
-    }
-
-    if (!modalContent.open) return null;
-
-    return createPortal(
-        <div className="modal-overlay is-open" onClick={closeModal}>
-            <div
-                className="modal-content-right"
-                role="dialog"
-                aria-modal="true"
-                onClick={(e) => e.stopPropagation()}
-            >
-                <View className={"modal-top-bar"}>
-                    <Heading level={4} marginBottom="10px" className={"modal-header"}>{modalContent.content}</Heading>
-                    <Button className="close-button-modal light" onClick={closeModal}>X</Button>
-                </View>
-                {children}
-                <View className="modal-from-top-close" textAlign={"center"} width={"100%"}>
-                    <Button className="close light" onClick={closeModal}>close</Button>
-                </View>
-            </div>
-        </div>,
-        document.getElementById("modal") || document.body
-    );
-}
-
-export function ReactModalFromRight({modalContent, children}: {modalContent: any; children: ReactNode}) {
-    console.log("ReactModalFromRight", modalContent);
-    const context = useContext(MyAuthContext);
-    const setModalContent = context?.setModalContent;
-    
-    function closeModal() {
-        if (setModalContent) {
-            setModalContent({open:false, content:"", id:"", action:"", gameID:"", zoneID:"", updatedDB:false});
-        }
+    function onClose() {
+       setModalContent({ open: false, content: "", id: "", modalStyle: "", action: "", gameID: "", zoneID: "", puzzleID: "",updatedDB: false })
     }
     
     if (!modalContent?.open) return null;
     
     return createPortal(
-        <div className="modal-overlay is-open" onClick={closeModal}>
+        <div className={`modal-overlay ${isOpen ? 'is-open' : ''}`} onClick={onClose}>
             <div 
                 className="modalContent adminModal"
                 role="dialog"
@@ -208,59 +146,68 @@ export function ReactModalFromRight({modalContent, children}: {modalContent: any
             >
                 <View className={"modal-top-bar"}>
                     <Heading level={4} marginBottom="10px" className={"modal-header"}>{modalContent.content}</Heading>
-                    <Button className="close-button-modal light" onClick={closeModal}>X</Button>
+                    <Button className="close-button-modal light" onClick={onClose}>X</Button>
                 </View>
                 {children}
                 <View className="modal-from-top-close" textAlign={"center"} width={"100%"}>
-                    <Button className="close light" onClick={closeModal}>close</Button>
+                    <Button className="close light" onClick={onClose}>close</Button>
                 </View>
             </div>
         </div>,
         document.getElementById("modal") || document.body
     );
 }
-export function ReactModalFromBottomMap({modalContentMap, setModalContentMap, children}) {
-    console.log("ReactModalFromBottomGI: " + modalContentMap.open);
-    let mapClass="";
-    if (modalContentMap.content === "Map") mapClass="-Map";
-    Modal.setAppElement("#modal");
-    function closeModal() {
-        setModalContentMap({open:false,content:""});
+
+interface ModalWaiverProps {
+    isOpen: boolean;
+    setModalContentWaiver: (content: {show: boolean; content: string}) => void;
+    children: ReactNode;
+}
+
+export function ModalWaiver({isOpen, setModalContentWaiver, children}: ModalWaiverProps) {
+
+    function close() {
+        setModalContentWaiver({show:false,content:""});
     }
     return (
         <>
-            {createPortal(<Modal
-                    closeTimeoutMS={200}
-                    isOpen={modalContentMap.open}
-                    onRequestClose={closeModal}
-                    className={"modalContent" + mapClass}
-                    contentLabel={"General"}
-                    overlayClassName={"slide-from-bottom"}
-                    parentSelector={() => document.querySelector("#modal")}
-                    preventScroll={
-                        false
-                        /* Boolean indicating if the modal should use the preventScroll flag when
-                           restoring focus to the element that had focus prior to its display. */}
+            {createPortal(
+                <div
+                    className={`modalContainer ${isOpen ? "showModal" : ""} `}
+                    onClick={() => close()}
                 >
-                    <View className={"modal-top-bar"}>
-                        <Heading level={4} marginBottom="10px" className={"modal-header"}>{modalContentMap.content}</Heading>
-                        <Button className="close-button-modal light"
-                                onClick={closeModal}>X</Button>
-                    </View>
-                    {children}
+                    <div className="modal background-dark game-intro from-right" onClick={(e) => e.stopPropagation()}>
+                        <header className="modal_header">
+                            <h2 className="modal_header-clueDetails">Waiver</h2>
 
-                    <View className="modal-from-top-close" textAlign={"center"} width={"100%"}>
-                        <Button className="close light" onClick={closeModal}>close</Button>
-                    </View>
-                </Modal>,
-                document.getElementById("modal")
+                        </header>
+                        <div className="modal_content">
+                            <View className={"dark"}>
+                                {children}
+                            </View>
+                        </div>
+                        <footer className="modal_footer">
+
+                        </footer>
+                        <button className={`modal-close-button`} onClick={close} aria-label="Close menu">
+                            &times;
+                        </button>
+                    </div>
+                </div>,
+                document.body
             )}
         </>
     )
 }
 
-export function ModalGameIntro({modalContentGI,setModalContentGI, handlePlayGameIntro, children}) {
-    /*const { isChecked } = useContext(MyGameContext);*/
+interface ModalGameIntroProps {
+    modalContentGI: {show: boolean; content: string};
+    setModalContentGI: (content: {show: boolean; content: string}) => void;
+    handlePlayGameIntro: () => void;
+    children: ReactNode;
+}
+export function ModalGameIntro({modalContentGI,setModalContentGI, handlePlayGameIntro, children}: ModalGameIntroProps) {
+
     function close() {
         setModalContentGI({show:false,content:""});
     }
@@ -271,12 +218,10 @@ export function ModalGameIntro({modalContentGI,setModalContentGI, handlePlayGame
                     className={`modalContainer ${modalContentGI.show ? "showModal" : ""} `}
                     onClick={() => close()}
                 >
-                    <div className="modal background-dark  from-right" onClick={(e) => e.stopPropagation()}>
+                    <div className="modal background-dark game-intro from-right" onClick={(e) => e.stopPropagation()}>
                         <header className="modal_header">
                             <h2 className="modal_header-clueDetails">Are You Ready?</h2>
-                            <button className={`modal-close-button`} onClick={close} aria-label="Close menu">
-                                &times;
-                            </button>
+
                         </header>
                         <div className="modal_content">
                             <View className={"dark"}>
@@ -289,6 +234,9 @@ export function ModalGameIntro({modalContentGI,setModalContentGI, handlePlayGame
                                         handlePlayGameIntro();
                                     }}>PLAY - Time Starts</Button>
                         </footer>
+                        <button className={`modal-close-button`} onClick={close} aria-label="Close menu">
+                            X
+                        </button>
                     </div>
                 </div>,
                 document.body
@@ -297,8 +245,17 @@ export function ModalGameIntro({modalContentGI,setModalContentGI, handlePlayGame
     )
 }
 
-export function ModalPuzzle({modalPuzzleContent,setModalPuzzleContent,puzzleDetails,children}) {
-    const { isChecked } = useContext(MyGameContext);
+interface ModalPuzzleProps {
+    modalPuzzleContent: {show: boolean; content: string};
+    setModalPuzzleContent: (content: {show: boolean; content: string}) => void;
+    gamePuzzleDetails: {puzzleName?: string};
+    children: ReactNode;
+}
+
+export function ModalPuzzle({modalPuzzleContent,setModalPuzzleContent,gamePuzzleDetails,children}: ModalPuzzleProps) {
+    const context = useContext(MyAuthContext);
+    if (!context) return null;
+    const { isChecked } = context;
     function close() {
         setModalPuzzleContent({show:false,content:""});
     }
@@ -309,46 +266,51 @@ export function ModalPuzzle({modalPuzzleContent,setModalPuzzleContent,puzzleDeta
                     className={`modalContainer ${modalPuzzleContent.show ? "showModal puzzleModal" : ""} `}
                     onClick={() => close()}
                 >
-                    <div className="modal dark from-right" onClick={(e) => e.stopPropagation()}>
+                    <div className="modal background-dark from-right" onClick={(e) => e.stopPropagation()}>
                         <header className="modal_header">
-                            <h2 className="modal_header-clueDetails">{puzzleDetails.puzzleName}</h2>
+                            <h2 className="modal_header-clueDetails">{gamePuzzleDetails.puzzleName}</h2>
                             <button className="close" onClick={() => close()}>
                                 close
                             </button>
                         </header>
                         <main className="modal_content">
-                            <View className={isChecked? "dark" : "light"}>
+                            <div className={isChecked? "dark" : "light"}>
                                 {children}
-                            </View>
+                            </div>
                         </main>
                         <footer className="modal_footer">
                             <button className="modal-close" onClick={() => close()}>
-                                Close
+                                close
                             </button>
                         </footer>
                     </div>
                 </div>,
-                document.getElementById("modal")
+                document.getElementById("modal") || document.body
             )}
         </>
     )
 }
 
-export function ModalClue({modalClueContent,setModalClueContent,clueDetails,setCluesFunction,children}) {
-    const { isChecked } = useContext(MyGameContext);
+interface ModalWinnerProps {
+    showWinner: boolean;
+    setShowWinner: (show: boolean) => void;
+    children: ReactNode;
+}
+
+export function ModalWinner({showWinner, setShowWinner, children}: ModalWinnerProps) {
     function close() {
-        setModalClueContent({show:false,content:""});
+        setShowWinner(false);
     }
     return (
         <>
             {createPortal(
                 <div
-                    className={`modalContainer ${modalClueContent.show ? "showModal" : ""} `}
+                    className={`modalContainer ${showWinner ? "showModal" : ""} `}
                     onClick={() => close()}
                 >
-                    <div className="modal dark from-left" onClick={(e) => e.stopPropagation()}>
+                    <div className="modal background-light from-left" onClick={(e) => e.stopPropagation()}>
                         <header className="modal_header">
-                            <h2 className="modal_header-clueDetails">{clueDetails.gameClueName}</h2>
+                            <h2 className="modal_header-clueDetails">Winner!</h2>
                             <button className="close" onClick={() => close()}>
                                 close
                             </button>
@@ -359,58 +321,13 @@ export function ModalClue({modalClueContent,setModalClueContent,clueDetails,setC
                             </View>
                         </main>
                         <footer className="modal_footer">
-                            <button className="submit" className={"add-clue"} onClick={()=>
-                            {setCluesFunction(clueDetails.gameClueName,clueDetails.gameClueText,clueDetails.gameClueID,clueDetails.gameClueImage);close();
-                            }}>add clue to notes</button>
                             <button className="modal-close" onClick={() => close()}>
-                                Close
-                            </button>
-                        </footer>
-                    </div>
-                </div>,
-                document.getElementById("modal")
-            )}
-        </>
-    )
-}
-
-export function ReactModalWinner({gameTimeTotal,children}) {
-    const { isChecked } = useContext(MyGameContext);
-    let openModal = false;
-    if (gameTimeTotal > 0) openModal = true;
-    function close() {
-        openModal = false;
-    }
-    return (
-        <>
-            {createPortal(
-                <div
-                    className={`modalContainer ${openModal ? "showModal" : ""} `}
-                    onClick={() => close()}
-                >
-                    <div className="modal dark from-left" onClick={(e) => e.stopPropagation()}>
-                        <header className="modal_header">
-                            <h2 className="modal_header-clueDetails">Winner1</h2>
-                            <button className="close" onClick={() => close()}>
                                 close
                             </button>
-                        </header>
-                        <main className="modal_content">
-                            <View className={"dark"}>
-                                {children}
-                            </View>
-                        </main>
-                        <footer className="modal_footer">
-                            <button className="submit" className={"add-clue"} onClick={()=>
-                            {setCluesFunction(clueDetails.gameClueName,clueDetails.gameClueText,clueDetails.gameClueID,clueDetails.gameClueImage);close();
-                            }}>add clue to notes</button>
-                            <button className="modal-close" onClick={() => close()}>
-                                Close
-                            </button>
                         </footer>
                     </div>
                 </div>,
-                document.getElementById("modal")
+                document.getElementById("modal") || document.body
             )}
         </>
     )

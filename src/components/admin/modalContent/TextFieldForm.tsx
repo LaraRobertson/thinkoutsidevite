@@ -1,29 +1,23 @@
 import {Button, Flex, Input, SwitchField, TextField, View} from "@aws-amplify/ui-react";
-import React, {useContext, useEffect, useState} from "react";
-import {MyAuthContext} from "../../MyContext";
-import { dataService } from "../../services/dataService";
-import type { Schema } from "../../../amplify/data/resource";
+import {useContext, useEffect, useState} from "react";
+import {MyAuthContext} from "../../../MyContext.tsx";
+import { dataService } from "../../../services/dataService.ts";
+import type { Schema } from "../../../../amplify/data/resource.ts";
+import {getDefaultModalContent} from "../../../utils/modalHelpers.ts";
 
 type TextField = Schema["TextField"]["type"];
-
-interface TextFieldFormState {
-    puzzleID: string;
-    name: string;
-    label: string;
-    answer: string;
-    order: number;
-    disabled: boolean;
-}
+type TextFieldFormState = Omit<TextField, 'id' | 'createdAt' | 'updatedAt' | 'puzzle' >;
 
 export default function TextFieldForm() {
-    const { setModalContent, modalContent } = useContext(MyAuthContext);
-    let action = modalContent.action;
-    let puzzleID = modalContent.puzzleID;
-    let textField = modalContent.textField;
-    let textFieldID = modalContent.id;
+    const context = useContext(MyAuthContext);
+    if (!context) throw new Error("TextFieldForm must be used within MyAuthContext.Provider");
+    const { setModalContent, modalContent } = context;
+    const action = modalContent.action;
+    const puzzleID = modalContent.puzzleID;
+    const textFieldID = modalContent.id;
 
-    const initialStateCreateTextField: TextFieldFormState = {
-        puzzleID: puzzleID,
+    const initialStateCreateTextField:  Partial<TextFieldFormState> = {
+        puzzleID: puzzleID || '',
         name: '',
         label: '',
         answer: '',
@@ -31,7 +25,7 @@ export default function TextFieldForm() {
         disabled: false
     };
     
-    const [formCreateTextFieldState, setFormCreateTextFieldState] = useState<TextFieldFormState>(initialStateCreateTextField);
+    const [formCreateTextFieldState, setFormCreateTextFieldState] = useState<Partial<TextFieldFormState>>(initialStateCreateTextField);
     
     function setInputCreateTextField(key: keyof TextFieldFormState, value: string | number | boolean) {
         setFormCreateTextFieldState({ ...formCreateTextFieldState, [key]: value });
@@ -40,38 +34,18 @@ export default function TextFieldForm() {
     useEffect(() => {
         if (action === "edit") {
             populateTextFieldForm();
-        } else if (action === "addBackupTextField") {
-            setFormCreateTextFieldState({...textField, puzzleID: puzzleID});
         }
     },[]);
     
     async function populateTextFieldForm() {
         try {
             const client = dataService.getClient();
-            const { data: textFieldFromAPI } = await client.models.TextField.get({ id: textFieldID });
+            const { data: textFieldFromAPI } = await client.models.TextField.get({ id: textFieldID || '' });
             if (textFieldFromAPI) {
                 setFormCreateTextFieldState(textFieldFromAPI);
             }
         } catch (err) {
             console.log('error fetching TextField', err);
-        }
-    }
-    
-    async function addTextFieldFromFile() {
-        try {
-            if (!formCreateTextFieldState.puzzleID || !formCreateTextFieldState.name) return;
-            const client = dataService.getAuthClient();
-            await client.models.TextField.create(formCreateTextFieldState);
-            setFormCreateTextFieldState(initialStateCreateTextField);
-            setModalContent({
-                open: false,
-                content: "",
-                id: "",
-                action: "",
-                updatedDB: true
-            });
-        } catch (err) {
-            console.log('error creating TextField:', err);
         }
     }
     
@@ -89,8 +63,14 @@ export default function TextFieldForm() {
             return;
         }
         try {
+            const textField = {
+                ...formCreateTextFieldState,
+                name: formCreateTextFieldState.name!,
+                puzzleID: formCreateTextFieldState.puzzleID!,
+                order: formCreateTextFieldState.order || 0
+            };
             const client = dataService.getAuthClient();
-            const result = await client.models.TextField.create(formCreateTextFieldState);
+            const result = await client.models.TextField.create(textField);
             
             if (result.errors) {
                 console.error('Errors creating textfield:', result.errors);
@@ -99,13 +79,8 @@ export default function TextFieldForm() {
             }
             
             setFormCreateTextFieldState(initialStateCreateTextField);
-            setModalContent({
-                open: false,
-                content: "",
-                id: "",
-                action: "",
-                updatedDB: true
-            });
+            /* close Modal */
+            setModalContent(getDefaultModalContent());
             window.alert("TextField created successfully!");
         } catch (err) {
             console.error('error creating TextField:', err);
@@ -119,23 +94,22 @@ export default function TextFieldForm() {
             return;
         }
         try {
+            const textField = { ...formCreateTextFieldState, id: textFieldID! };
+            console.log("formCreateTextFieldState - update textField")
+            for (const key in textField) {
+                console.log(`${key}: ${textField[key as keyof typeof textField]}`);
+            }
             const client = dataService.getAuthClient();
-            const result = await client.models.TextField.update(formCreateTextFieldState);
+            const result = await client.models.TextField.update(textField);
             
             if (result.errors) {
                 console.error('Errors updating textfield:', result.errors);
                 window.alert("Error updating textfield: " + JSON.stringify(result.errors));
                 return;
             }
-            
             setFormCreateTextFieldState(initialStateCreateTextField);
-            setModalContent({
-                open: false,
-                content: "",
-                id: "",
-                action: "",
-                updatedDB: true
-            });
+            /* close Modal */
+            setModalContent(getDefaultModalContent());
             window.alert("TextField updated successfully!");
         } catch (err) {
             console.error('error updating TextField:', err);
@@ -149,9 +123,12 @@ export default function TextFieldForm() {
             <View className="small">Puzzle ID: {formCreateTextFieldState.puzzleID}</View>
             <Flex direction="column" justifyContent="center" gap="1rem" className="game-form">
                 <SwitchField
-                    label="disabled"
-                    isChecked={formCreateTextFieldState.disabled}
-                    onChange={(e) => setInputCreateTextField('disabled', e.target.checked)}
+                    label={formCreateTextFieldState.disabled? "disabled" : "live"}
+                    isChecked={formCreateTextFieldState.disabled || false}
+                    onChange={(e) => {
+                        console.log("e.target.checked: " + e.target.checked)
+                        setInputCreateTextField('disabled', e.target.checked);
+                    }}
                 />
                 <View>Order</View>
                 <Input
@@ -160,7 +137,7 @@ export default function TextFieldForm() {
                     size="small"
                     width="50px"
                     onChange={(event) => setInputCreateTextField('order', parseInt(event.target.value))}
-                    value={formCreateTextFieldState.order.toString()}
+                    value={formCreateTextFieldState.order?.toString() || ''}
                 />
                 <TextField
                     onChange={(event) => setInputCreateTextField('puzzleID', event.target.value)}
@@ -177,7 +154,7 @@ export default function TextFieldForm() {
                     placeholder="Name"
                     label="Name"
                     variation="quiet"
-                    value={formCreateTextFieldState.name}
+                    value={formCreateTextFieldState.name || ''}
                     required
                 />
                 <TextField
@@ -186,7 +163,7 @@ export default function TextFieldForm() {
                     placeholder="Label"
                     label="Label"
                     variation="quiet"
-                    value={formCreateTextFieldState.label}
+                    value={formCreateTextFieldState.label || ''}
                     required
                 />
                 <TextField
@@ -195,7 +172,7 @@ export default function TextFieldForm() {
                     placeholder="Answer"
                     label='Answer &#123;"answer1":"baseball","answer2":"softball"&#125;'
                     variation="quiet"
-                    value={formCreateTextFieldState.answer}
+                    value={formCreateTextFieldState.answer || ''}
                     required
                 />
             </Flex>
@@ -203,10 +180,6 @@ export default function TextFieldForm() {
                 {(action == "add") &&
                     <Button id="createPuzzle" className="show" onClick={addTextField} variation="primary">
                         Create TextField
-                    </Button>}
-                {(action == "addBackupTextField") &&
-                    <Button id="createPuzzle" className="show" onClick={addTextFieldFromFile} variation="primary">
-                        Create TextField From File
                     </Button>}
                 {(action == "edit") &&
                     <Button id="updatePuzzle" className="show" onClick={updateTextField} variation="primary">

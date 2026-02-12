@@ -5,16 +5,14 @@ import {
     SwitchField, TableCell,
     TableHead,
     TableRow,
-    TextAreaField,
     TextField,
     View,
     Table,
     TableBody
 } from "@aws-amplify/ui-react";
-import React, {useContext, useEffect, useState} from "react";
-import {MyAuthContext} from "../../MyContext";
-import { dataService } from "../../services/dataService";
-import type { Schema } from "../../../amplify/data/resource";
+import {useEffect, useState} from "react";
+import { dataService } from "../../../services/dataService.ts";
+import type { Schema } from "../../../../amplify/data/resource.ts";
 
 type City = Schema["City"]["type"];
 
@@ -29,7 +27,6 @@ interface CityFormState {
 }
 
 export default function CityForm() {
-    const { setModalContent, modalContent  } = useContext(MyAuthContext);
     const [cities, setCities] = useState<City[]>([]);
     const [action, setAction] = useState<"add" | "edit">("add");
     const initialStateCreateCity: CityFormState = {
@@ -66,7 +63,15 @@ export default function CityForm() {
             const client = dataService.getClient();
             const { data: cityFromAPI } = await client.models.City.get({ id: cityID });
             if (cityFromAPI) {
-                setFormCreateCityState(cityFromAPI);
+                setFormCreateCityState({
+                    cityName: cityFromAPI.cityName || '',
+                    cityDescription: cityFromAPI.cityDescription || '',
+                    cityState: cityFromAPI.cityState || '',
+                    cityCountry: cityFromAPI.cityCountry || '',
+                    cityMap: cityFromAPI.cityMap || '',
+                    order: cityFromAPI.order,
+                    disabled: cityFromAPI.disabled || false
+                });
                 setAction("edit");
             }
         } catch (err) {
@@ -148,7 +153,6 @@ export default function CityForm() {
         <View>
             <Table
                 highlightOnHover={true}
-                size={"default"}
                 variation={"striped"}
             >
                <TableHead>
@@ -165,7 +169,7 @@ export default function CityForm() {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {cities.map((city, index) => (
+                    {cities.map((city) => (
                         <TableRow key={city.id}>
                                 <TableCell>{city.cityName}</TableCell>
                                 <TableCell>{city.cityState}</TableCell>

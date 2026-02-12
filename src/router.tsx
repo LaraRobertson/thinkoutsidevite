@@ -26,7 +26,7 @@ export const router = createBrowserRouter([
            { path: 'games', element: <Games /> },
            { path: 'users', element: <Users  /> },
        ]},
-      { path: 'game', element: <ProtectedRoute><Game /></ProtectedRoute> },
+      { path: 'game', element: <Game /> },
     ],
   },
 ])

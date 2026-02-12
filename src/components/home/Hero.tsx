@@ -1,6 +1,6 @@
 import {NavLink} from "react-router-dom";
 
-import React, {useState} from "react";
+import {useState} from "react";
 
 export default function Hero() {
     const [hideHero, setHideHero] = useState(false);
@@ -20,10 +20,10 @@ export default function Hero() {
             </div>
             <div>
                 <h1>Go Outside and play Unique and Puzzling Games</h1>
-                <div>
-                    <NavLink to="/game" className="button green-background" >
+                <div className="flex-parent-center">
+                    <button onClick={() => setHideHero(!hideHero)} className="button green-background-link" >
                         Play a Game
-                    </NavLink>
+                    </button>
                     <NavLink to="/howtoplay" className="button light-purple-background" >
                         How To Play
                     </NavLink>
@@ -61,7 +61,7 @@ export default function Hero() {
                 </div>
             </div>
     </div>
-            <button size="small" onClick={() => setHideHero(!hideHero)}>
+            <button onClick={() => setHideHero(!hideHero)}>
                 {hideHero ?
                     <div>show introduction</div> :
                     <div>hide introduction</div>

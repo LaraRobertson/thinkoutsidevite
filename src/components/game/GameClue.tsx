@@ -1,130 +1,147 @@
-import {Image, View} from "@aws-amplify/ui-react";
-import React from "react";
-import diary from "../../assets/noun-diary-6966311.svg";
-import messageInABottle from "../../assets/noun-message-in-a-bottle-5712014.svg";
-import clueIcon from "../../assets/noun-clue-4353248.svg";
-import clueNoteIcon from "../../assets/noun-note-question-1648398.svg";
-import envelope from "../../assets/noun-message-6963433.svg";
-import tornPaper from "../../assets/noun-torn-paper-3017230.svg";
+import {View} from "@aws-amplify/ui-react";
+import Diary from "../../assets/icons/noun-diary-6966311.svg?react";
+import MessageInABottle from "../../assets/icons/noun-message-in-a-bottle-5712014.svg?react";
+import ClueIcon from "../../assets/icons/noun-clue-4353248.svg?react";
+import ClueNoteIcon from "../../assets/icons/noun-note-question-1648398.svg?react";
+import Envelope from "../../assets/icons/noun-message-6963433.svg?react";
+import TornPaper from "../../assets/icons/noun-torn-paper-3017230.svg?react";
 import {keyID} from "../helper";
 import type { Schema } from "../../../amplify/data/resource";
+import {useContext} from "react";
+import {MyAuthContext} from "../../MyContext.tsx";
 
 type GameClue = Schema["GameClue"]["type"];
 
 interface GameClueProps {
     zoneVisible: string;
     clue: GameClue;
+    setGameClueVisible: (hints: Record<string, boolean>) => void;
+    gameClueVisible: Record<string, boolean>;
     index: number;
-    setModalClueContent: (content: {show: boolean; content: string}) => void;
-    setClueDetails: (details: {
-        gameClueName: string;
-        gameClueText: string;
-        gameClueImage: string;
-        gameClueID: string;
-    }) => void;
 }
 
 interface IconClueDisplayProps {
     gameClueIcon?: string;
     index: number;
     hide?: string;
+    isChecked: boolean;
+}
+
+const IconClueDisplay = (props: IconClueDisplayProps) => {
+    console.log("props.gameClueIcon: " + props.gameClueIcon);
+    if (props.gameClueIcon != "") {
+        switch (true) {
+            case (props.gameClueIcon == "diary"):
+                return (
+                    <Diary className={props.isChecked ? "dark-background " : "light-background "} height={70} width={70} />
+                );
+            case (props.gameClueIcon == "tornPaper"):
+                return (
+                    <TornPaper className={props.isChecked ? "dark-background " : "light-background "} height={70} width={70} />
+                );
+            case (props.gameClueIcon == "messageInABottle"):
+                return (
+                    <MessageInABottle className={props.isChecked ? "dark-background " : "light-background "} height={70} width={70} />
+                );
+            case (props.gameClueIcon == "clueIcon"):
+                return (
+                    <ClueIcon className={props.isChecked ? "dark-background " : "light-background "} height={70} width={70} />
+                );
+            case (props.gameClueIcon == "clueNoteIcon"):
+                return (
+                    <ClueNoteIcon className={props.isChecked ? "dark-background " : "light-background "} height={70} width={70} />
+                );
+            case (props.gameClueIcon == "envelope"):
+                return (
+                    <Envelope className={props.isChecked ? "dark-background " : "light-background "} height={70} width={70} />
+                );
+            default:
+                return (
+                    <TornPaper className={props.isChecked ? "dark-background " : "light-background "} height={70} width={70} />
+                );
+        }
+    } else {
+        switch (true) {
+            case (props.index == 0):
+                return (
+                    <Diary className={props.isChecked ? "dark-background " : "light-background "} height={50} width={50} />
+                );
+            case (props.index == 1):
+                return (
+                    <TornPaper className={props.isChecked ? "dark-background " : "light-background "} height={70} width={70} />
+                );
+            case (props.index % 5 == 0):
+                return (
+                    <MessageInABottle className={props.isChecked ? "dark-background " : "light-background "} height={70} width={70} />
+
+                );
+            case (props.index % 4 == 0):
+                return (
+                    <ClueIcon className={props.isChecked ? "dark-background " : "light-background "} height={70} width={70} />
+
+                );
+            case (props.index % 3 == 0):
+                return (
+                    <ClueNoteIcon className={props.isChecked ? "dark-background " : "light-background "} height={70} width={70} />
+
+                );
+            case (props.index % 2 == 0):
+                return (
+                    <Envelope className={props.isChecked ? "dark-background " : "light-background "} height={70} width={70} />
+                );
+            default:
+                return (
+                    <TornPaper className={props.isChecked ? "dark-background " : "light-background "} height={70} width={70} />
+                );
+        }
+    }
 }
 
 export default function GameClue(props: GameClueProps) {
-    const { zoneVisible, clue, index, setModalClueContent, setClueDetails } = props;
+    const { clue,zoneVisible, setGameClueVisible, gameClueVisible, index} = props;
+    const context = useContext(MyAuthContext);
+    if (!context) throw new Error("Game must be used within MyAuthContext.Provider");
+    const { isChecked } = context;
 
-    function handleClueDetail(clueDetailsVar: {
-        gameClueName: string;
-        gameClueText: string;
-        gameClueImage: string;
-        gameClueID: string;
-    }) {
-        setClueDetails(clueDetailsVar);
-        setModalClueContent({
-            show: true,
-            content: "clue"
-        })
-    }
-
-    const IconClueDisplay = (props: IconClueDisplayProps) => {
-        console.log("props.gameClueIcon: " + props.gameClueIcon);
-        if (props.gameClueIcon != "") {
-            switch (true) {
-                case (props.gameClueIcon == "diary"):
-                    return (
-                        <Image height="70px" width="70px" src={diary} alt="diary"/>
-                    );
-                case (props.gameClueIcon == "tornPaper"):
-                    return (
-                        <Image height="70px" width="70px" src={tornPaper} alt="torn paper"/>
-                    );
-                case (props.gameClueIcon == "messageInABottle"):
-                    return (
-                        <Image height="70px" width="70px" src={messageInABottle} alt="message in a bottle"/>
-                    );
-                case (props.gameClueIcon == "clueIcon"):
-                    return (
-                        <Image height="70px" width="70px" src={clueIcon} alt="clue icon"/>
-                    );
-                case (props.gameClueIcon == "clueNoteIcon"):
-                    return (
-                        <Image height="70px" width="70px" src={clueNoteIcon} alt="clue Note icon"/>
-                    );
-                case (props.gameClueIcon == "envelope"):
-                    return (
-                        <Image height="70px" width="70px" src={envelope} alt="envelope"/>
-                    );
-                default:
-                    return (
-                        <Image height="70px" width="70px" src={tornPaper} alt="torn paper"/>
-                    );
-            }
-        } else {
-            switch (true) {
-                case (props.index == 0):
-                    return (
-                        <Image height="70px" width="70px" src={diary} alt="diary"/>
-                    );
-                case (props.index == 1):
-                    return (
-                        <Image height="70px" width="70px" src={tornPaper} alt="torn paper"/>
-                    );
-                case (props.index % 5 == 0):
-                    return (
-                        <Image height="70px" width="70px" src={messageInABottle} alt="message in a bottle"/>
-                    );
-                case (props.index % 4 == 0):
-                    return (
-                        <Image height="70px" width="70px" src={clueIcon} alt="clue icon"/>
-                    );
-                case (props.index % 3 == 0):
-                    return (
-                        <Image height="70px" width="70px" src={clueNoteIcon} alt="clue Note icon"/>
-                    );
-                case (props.index % 2 == 0):
-                    return (
-                        <Image height="70px" width="70px" src={envelope} alt="envelope"/>
-                    );
-                default:
-                    return (
-                        <Image height="70px" width="70px" src={tornPaper} alt="torn paper"/>
-                    );
-            }
+    function setGameClueVisibleFunction(key: string, value: boolean) {
+        console.log("setGameClueVisibleFunction: " + key);
+        /* check if true or false */
+        if (gameClueVisible[key]) {
+            setGameClueVisible({...gameClueVisible, [key]: false});
+            /* no need to set in local storage
+            const newObject = {...gameClueVisible,[key]:false};
+            const gameClueVisibleTest = JSON.stringify(newObject);
+            if (gameClueVisibleTest != "{}" &&  gameClueVisibleTest != "" &&  gameClueVisibleTest != null) {
+                localStorage.setItem("gameClueVisible", gameClueVisibleTest);
+            } */
+            return;
+        }
+        const newObject = {...gameClueVisible,[key]:value};
+        const gameClueVisibleTest = JSON.stringify(newObject);
+        if (gameClueVisibleTest != "{}" &&  gameClueVisibleTest != "" &&  gameClueVisibleTest != null) {
+            localStorage.setItem("gameClueVisible", gameClueVisibleTest);
+        }
+        if (key) {
+            setGameClueVisible({...newObject, [key]: value})
         }
     }
     
     if (zoneVisible==clue.gamePlayZoneID) {
         return (
             <View aria-label={clue.gameClueName || ''} key={keyID(clue.id,"clue")}
-                  className={"clue"+ index}
-                  onClick={() => handleClueDetail({
-                      gameClueName: clue.gameClueName || '',
-                      gameClueText: clue.gameClueText || '',
-                      gameClueImage: clue.gameClueImage || '',
-                      gameClueID: clue.id
-                  })}
+                  className={"game-item clue"+ index}
+                  onClick={() => setGameClueVisibleFunction("clue" + (clue.id), true)}
             >
-                <IconClueDisplay index={index} hide="true" gameClueIcon={clue.gameClueIcon || ''}/>
+                {gameClueVisible["clue" + (clue.id)]? (
+                    <div>
+                        <h4>clue:</h4>
+                        {clue.gameClueText}
+                        <button className={"button background-light"}>close</button>
+                    </div>
+                    ):(
+                    <IconClueDisplay index={index} hide="true" gameClueIcon={clue.gameClueIcon || ''} isChecked={isChecked || false}/>
+
+                )}
             </View>
 
         )

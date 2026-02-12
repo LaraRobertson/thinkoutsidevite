@@ -1,14 +1,13 @@
-import {Button, Heading, Image, Flex} from "@aws-amplify/ui-react";
-import React, {useState} from "react";
-import {NavLink, useNavigate} from 'react-router-dom';
-import LeftArrow from "../../assets/left-arrow-svgrepo-com.svg?react";
-import RightArrow from "../../assets/right-arrow-svgrepo-com.svg?react";
-import HomeIcon from "../../assets/noun-home-7100601.svg?react";
-import DashBoardIcon from "../../assets/noun-dashboard-7064012.svg?react";
-import GameIcon from "../../assets/noun-tactics-6452991.svg?react";
-import UserIcon from "../../assets/noun-user-1994976.svg?react";
+import {useState} from "react";
+import {NavLink} from 'react-router-dom';
+import LeftArrow from "../../assets/icons/left-arrow-svgrepo-com.svg?react";
+import RightArrow from "../../assets/icons/right-arrow-svgrepo-com.svg?react";
+import HomeIcon from "../../assets/icons/noun-home-7100601.svg?react";
+import DashBoardIcon from "../../assets/icons/noun-dashboard-7064012.svg?react";
+import GameIcon from "../../assets/icons/noun-tactics-6452991.svg?react";
+import UserIcon from "../../assets/icons/noun-user-1994976.svg?react";
 
-export default function AdminNav(props: {displaySection: string; setDisplaySection: (section: string) => void}) {
+export default function AdminNav() {
 
     const [routeSelection, setRouteSelection] = useState({section:"dashboard"})
     const [sidebarDisplay, setSideBarDisplay] = useState(true);

@@ -1,13 +1,13 @@
 // components/Waiver.tsx
-import React, {useContext, useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import {Button, View, Alert, Flex} from '@aws-amplify/ui-react';
 import {MyAuthContext} from "../../../MyContext";
-import type {GameDetails, GameDetailsVar} from "../../../types/game";
+import type {GameDetails} from "../../../types/game";
 
 interface WaiverProps {
-    gameDetails: GameDetailsVar;
+    gameDetails: GameDetails;
     setGameDetails: (gameDetails: GameDetails | null) => void;
-    gameIntro?: string;
+    gameIntro?: boolean;
 }
 
 export default function Waiver({gameDetails, setGameDetails, gameIntro}: WaiverProps) {
@@ -18,12 +18,14 @@ export default function Waiver({gameDetails, setGameDetails, gameIntro}: WaiverP
     const [alertText, setAlertText] = useState('');
 
     useEffect(() => {
-        console.log("***useEffect***: alert user about signing waiver");
-        setIsAlertVisible(true);
-        setAlertText('Please agree to Waiver before playing the game.');
-        setTimeout(() => {
-            setIsAlertVisible(false);
-        }, 3000);
+        if (!gameIntro) {
+            console.log("***useEffect***: alert user about signing waiver");
+            setIsAlertVisible(true);
+            setAlertText('Please agree to Waiver before playing the game.');
+            setTimeout(() => {
+                setIsAlertVisible(false);
+            }, 3000);
+        }
     }, []);
 
     async function agreeToWaiverFunction() {
@@ -33,6 +35,8 @@ export default function Waiver({gameDetails, setGameDetails, gameIntro}: WaiverP
             setGameDetails({...gameDetails, waiverSigned: gameDetails.gameID, numberOfTimes: 0});
         }
         setModalContent({
+            gameDesigner: "",
+            puzzleID: "",
             open: true,
             content: "Game Intro",
             id: "",
@@ -47,7 +51,7 @@ export default function Waiver({gameDetails, setGameDetails, gameIntro}: WaiverP
     return (
         <div className={"main-content background-light waiver-container"}>
             <h2>Waiver</h2>
-            <Alert variation="neutral" hasIcon={false} textAlign={"center"}>
+            <Alert variation="info" hasIcon={false} textAlign={"center"}>
                 <strong>I will respect all laws, rules, and property rights of the area.
                     I will try not to annoy those around me.</strong>
             </Alert>

@@ -1,17 +1,6 @@
 import { createContext } from 'react';
 import type { AuthUser } from 'aws-amplify/auth';
-
-type ModalContent = {
-  open: boolean;
-  content: string;
-  id: string;
-  modalStyle: string;
-  action: string;
-  gameID: string;
-  zoneID: string;
-  puzzleID: string;
-  updatedDB: boolean;
-};
+import type { ModalContent } from './utils/modalHelpers';
 
 type AuthContextType = {
   setModalContent: React.Dispatch<React.SetStateAction<ModalContent>>;
@@ -19,7 +8,8 @@ type AuthContextType = {
   authStatus?: string;
   user?: AuthUser;
   email?: string;
+  isChecked?: boolean;
+  setIsChecked?: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const MyAuthContext = createContext<AuthContextType | null>(null);
-export const MyGameContext = createContext("");

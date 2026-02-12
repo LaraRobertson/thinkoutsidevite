@@ -95,6 +95,22 @@
     border: none;
     cursor: pointer;
 }
+.modalContainer .modal-close-button {
+    background-color: var(--background-dark);
+    color: var(--color-light);
+    padding: .2rem .5rem;
+}
+.game-intro .modal-close-button {
+    position: absolute;
+    top: 0px;
+    right: 10px;
+    font-size: 1.5rem;
+}
+.game-intro.background-dark .button {
+    color: var(--color-light);
+    background-color: var(--background-dark);
+}
+
 
 .modalContent {
     margin: 0 auto;
@@ -144,6 +160,49 @@
     width: 100vw;
     height: 95vh;
     z-index: 1100;}
+.modalContainer header, .modalContainer footer {
+    background: transparent;
+    justify-content: center;
+    padding:0;
+}
+.modalContainer .background-dark button {
+    border: 1px solid white;
+}
+.modalContainer .background-light button {
+    border: 1px solid black;
+}
+.modalContainer main {
+    min-height: 1rem;
+    justify-content: center;
+}
+.modalContainer .textFieldContainer {
+    display:flex;
+    justify-content: flex-start;
+    padding-left: 5%;
+    gap: 1em;
+}
+.modalContainer h4 {
+    margin:0;
+}
+.modalContainer .puzzleTextField {
+    width: 90%;
+}
+.modalContainer .right-answer {
+    width: 5%;
+    color: green;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.modalContainer .background-dark .textFieldContainer, .modalContainer .background-dark .textFieldContainer label,
+.modalContainer .background-dark .textFieldContainer input{
+    color: var(--color-light);
+}
+.modalContainer .background-light .textFieldContainer, .modalContainer .background-light .textFieldContainer label,
+.modalContainer .background-light .textFieldContainer input{
+    color: var(--color-dark);
+}
 .modalContainer .modal {
     width: 90vw;
     margin: 20px auto;
@@ -196,10 +255,14 @@
     margin-right: 1rem; }
 .modalContainer .modal_footer .submit:hover {
     background-color: rgba(54, 67, 72, 0.8); }
-.modalContainer .modal_footer .modal-close {
+.modalContainer .modal_footer .background-dark.modal-close {
     background-color: transparent;
     font-weight: 600;
     color: white; }
+.modalContainer .modal_footer .background-light.modal-close {
+    background-color: transparent;
+    font-weight: 600;
+    color: black; }
 .modalContainer .modal_footer .modal-close:hover {
     color: rgba(54, 67, 72, 0.8); }
 

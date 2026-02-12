@@ -1,5 +1,5 @@
 import {Button, Heading, View, TextField, Image} from "@aws-amplify/ui-react";
-import React, {useContext, useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import { useNavigate } from "react-router-dom";
 import {
     RegExpMatcher,
@@ -9,19 +9,15 @@ import {
 import {MyAuthContext} from "../../../MyContext";
 import { dataService } from "../../../services/dataService";
 import Waiver from "./Waiver";
-import ExampleGame from "./ExampleGame";
-import ExampleGame2 from "./ExampleGame2";
-import ExampleGame3 from "./ExampleGame3";
-import ExampleGame5 from "./ExampleGame5";
-import ExampleGame4 from "./ExampleGame4";
-import ExampleGame6 from "./ExampleGame6";
 import DOMPurify from "dompurify";
-import {ModalSlideFromBottom, ModalMap, ModalGameIntro} from "../../Modals";
+import {ModalWaiver, ModalMap, ModalGameIntro} from "../../Modals";
 import {Map} from "../../Map";
-import type { GameDetailsVar } from "../../../types/game";
+import type { GameDetails } from "../../../types/game";
+import { getDefaultModalContent, createModalContent } from "../../../utils/modalHelpers";
 
 interface GameIntroProps {
-    gameDetails: GameDetailsVar;
+    gameDetails: GameDetails;
+    setGameDetails: (gameDetails: GameDetails | null) => void;
 }
 
 interface ModalContentState {
@@ -35,21 +31,16 @@ interface ModalContentMap {
 }
 
 export default function GameIntro(props: GameIntroProps) {
-    const { gameDetails } = props;
+    const { gameDetails, setGameDetails } = props;
     const navigate = useNavigate();
     const context = useContext(MyAuthContext);
     if (!context) throw new Error("GameIntro must be used within MyAuthContext.Provider");
-    const { authStatus, email, gamesIDUserPlayed, gamesIDUser, setModalContent, setGameDetails } = context;
-    
+    const { user, setModalContent } = context;
+    if (!user || !user.signInDetails) throw new Error("User must be authenticated to access GameIntro");
+    const userEmail = user.signInDetails.loginId;
     /* Modal Content */
     const [modalContentGI, setModalContentGI] = useState<ModalContentState>({show:false, content:""});
     const [modalContentWaiver, setModalContentWaiver] = useState<ModalContentState>({show:false, content:""});
-    const [modalContentEG, setModalContentEG] = useState<ModalContentState>({show:false, content:""});
-    const [modalContentEG2, setModalContentEG2] = useState<ModalContentState>({show:false, content:""});
-    const [modalContentEG3, setModalContentEG3] = useState<ModalContentState>({show:false, content:""});
-    const [modalContentEG4, setModalContentEG4] = useState<ModalContentState>({show:false, content:""});
-    const [modalContentEG5, setModalContentEG5] = useState<ModalContentState>({show:false, content:""});
-    const [modalContentEG6, setModalContentEG6] = useState<ModalContentState>({show:false, content:""});
     const [modalContentMap, setModalContentMap] = useState<ModalContentMap>({open: false, content: ""});
     
     console.log('gameDetails.gameName: ' + gameDetails.gameName);
@@ -60,7 +51,30 @@ export default function GameIntro(props: GameIntroProps) {
     });
     const [numberOfPlayersError, setNumberOfPlayersError] = useState("");
     const [teamName, setTeamName] = useState("");
-    const [hideWaiver, setHideWaiver] = useState(false);
+    //const [hideWaiver, setHideWaiver] = useState(true);
+    const [gamePlayZoneImage, setGamePlayZoneImage] = useState<string | undefined>(undefined);
+
+    useEffect(() => {
+        const fetchGamePlayZoneImage = async () => {
+            try {
+                const client = dataService.getClient();
+                const { data: zones } = await client.models.GamePlayZone.list({
+                    filter: {
+                        gameID: { eq: gameDetails.gameID },
+                        order: { eq: 1 }
+                    }
+                });
+                if (zones.length > 0 && zones[0].gameZoneImage) {
+                    setGamePlayZoneImage(zones[0].gameZoneImage);
+                }
+            } catch (err) {
+                console.error("Error fetching GamePlayZone image:", err);
+            }
+        };
+        
+        fetchGamePlayZoneImage();
+        handleViewGameIntro();
+    }, []);
 
     async function handlePlayGameIntro() {
         console.log("goToGame: " + gameDetails.gameName);
@@ -76,7 +90,7 @@ export default function GameIntro(props: GameIntroProps) {
                 
                 const gameStatsData = {
                     gameID: gameDetails.gameID,
-                    userEmail: email || "",
+                    userEmail: userEmail || "",
                     gameName: gameDetails.gameName,
                     gameLocationCity: gameDetails.gameLocationCity,
                     gameStates: JSON.stringify({ waiverSigned: true }),
@@ -98,7 +112,7 @@ export default function GameIntro(props: GameIntroProps) {
                 const gameStatsResponse = await client.models.GameStats.list({
                     filter: {
                         gameID: { eq: gameDetails.gameID },
-                        userEmail: { eq: email || "" }
+                        userEmail: { eq: userEmail || "" }
                     }
                 });
                 
@@ -134,16 +148,7 @@ export default function GameIntro(props: GameIntroProps) {
                 localStorage.setItem("gameName", gameDetails.gameName);
                 
                 /* close modal */
-                setModalContent({
-                    open: false,
-                    content: "",
-                    id: "",
-                    modalStyle: "",
-                    action: "",
-                    gameID: "",
-                    zoneID: "",
-                    updatedDB: false
-                });
+                setModalContent(getDefaultModalContent());
                 
                 /* navigate to game */
                 if (gameDetails.gameName === "xxx") {
@@ -164,17 +169,10 @@ export default function GameIntro(props: GameIntroProps) {
                 setNumberOfPlayersError("Please provide a Team Name");
             } else {
                 /* go to waiver */
-                setModalContent({
+                setModalContent(createModalContent({
                     open: true,
-                    content: "Waiver",
-                    id: "",
-                    modalClass: "",
-                    modalClassOpen: "",
-                    action: "",
-                    gameID: "",
-                    zoneID: "",
-                    updatedDB: false
-                });
+                    content: "Waiver"
+                }));
             }
         }
     }
@@ -186,21 +184,18 @@ export default function GameIntro(props: GameIntroProps) {
     
     function handleViewWaiver() {
         console.log("handleViewWaiver");
+        /*if (hideWaiver) {
+            setModalContentWaiver({
+                show: true,
+                content: "Waiver"
+            });
+        }*/
         setModalContentWaiver({
             show: true,
             content: "Waiver"
         });
+        //setHideWaiver(!hideWaiver);
     }
-
-    /**** don't need this */
-    function handleExampleGame() {
-        console.log("handleExampleGame");
-        setModalContentEG({
-            show: true,
-            content: "Example Game"
-        });
-    }
-    /***********************/
 
     function handleViewGameIntro() {
         console.log("handleViewGameIntro: " + teamName + " waiver?: " + gameDetails.waiverSigned);
@@ -208,7 +203,7 @@ export default function GameIntro(props: GameIntroProps) {
             console.log("go to game start");
             setModalContentGI({
                 show: true,
-                content: "Game Intro"
+                content: "Are You Ready"
             });
 
         } else {
@@ -220,6 +215,7 @@ export default function GameIntro(props: GameIntroProps) {
             } else {
                 /* go to waiver */
                 setModalContent({
+                    gameDesigner: "", puzzleID: "",
                     open: true,
                     content: "Waiver",
                     id: "",
@@ -246,8 +242,8 @@ export default function GameIntro(props: GameIntroProps) {
         }
     }
 
-    function DangerouslySetInnerHTMLSanitized(htmlContent: string) {
-        const sanitizedHtmlContent = DOMPurify.sanitize(htmlContent);
+    function DangerouslySetInnerHTMLSanitized(htmlContent: string | undefined) {
+        const sanitizedHtmlContent = DOMPurify.sanitize(htmlContent || "");
         return sanitizedHtmlContent;
     }
 
@@ -266,13 +262,10 @@ export default function GameIntro(props: GameIntroProps) {
             </View>
             <View className={"small end-paragraph"} textAlign={"center"}>
                 <strong>You Have Signed Waiver</strong>:
-                    <Button onClick={() => setHideWaiver(!hideWaiver)} variation={"link"}>
-                        {hideWaiver ?
-                            "View Waiver" :
-                            "Close Waiver"
-                        }
+                    <Button onClick={() => handleViewWaiver()} variation={"link"}>
+                            View Waiver
                     </Button>
-                <div className={hideWaiver? "hide" : "waiver-container"}>
+                <div className={"hide"}>
                     <Waiver gameDetails={gameDetails} setGameDetails={setGameDetails} gameIntro={true}/>
                 </div>
             </View>
@@ -280,13 +273,13 @@ export default function GameIntro(props: GameIntroProps) {
                 Start Playing when you are here:
             </Heading>
             <View className={"end-paragraph"} textAlign={"center"}>
-                <Image alt={gameDetails.gameName} maxHeight="100px" src={gameDetails.gamePlayZoneImage1}/><br />
+                <Image alt={gameDetails.gameName} maxHeight="100px" src={gamePlayZoneImage}/><br />
                 <Button className="quit-button dark"
                         onClick={() => setModalContentMap({
                             open: true,
                             content: "Map"
                         })}>
-                    Tap for Location of First Zone on Map
+                   Location of First Zone on Map
                 </Button>
             </View>
 
@@ -319,17 +312,13 @@ export default function GameIntro(props: GameIntroProps) {
                 </Button>
             </View>
 
-            <ModalSlideFromBottom isOpen={modalContentWaiver.show}>
-                {(modalContentWaiver.content === "Waiver") && <Waiver gameDetails={gameDetails} gameIntro="true"/>}
-            </ModalSlideFromBottom>
+            <ModalWaiver isOpen={modalContentWaiver.show} setModalContentWaiver={setModalContentWaiver}>
+                {(modalContentWaiver.content === "Waiver") && <Waiver setGameDetails={setGameDetails} gameDetails={gameDetails} gameIntro={true}/>}
+            </ModalWaiver>
 
             <ModalMap isOpen={modalContentMap.open} setModalContentMap={setModalContentMap}>
-                {(modalContentMap.content === "Map") && <Map gameDetailsVar={gameDetails}/>}
+                {(modalContentMap.content === "Map") && <Map gameDetails={gameDetails} gameIntro={true}/>}
             </ModalMap>
-
-            <ModalSlideFromBottom isOpen={modalContentEG.show}>
-                {(modalContentEG.content === "Example Game") && <ExampleGame gameIntro="true"/>}
-            </ModalSlideFromBottom>
 
             {/*
             <ModalSlideFromBottom isOpen={modalContentGI.show}>
@@ -344,7 +333,7 @@ export default function GameIntro(props: GameIntroProps) {
                 modalContentGI={modalContentGI}
                 setModalContentGI={setModalContentGI}
                 handlePlayGameIntro = {handlePlayGameIntro}>
-                {(modalContentGI.content == "Game Intro") &&
+                {(modalContentGI.content == "Are You Ready") &&
                     <View dangerouslySetInnerHTML={ {__html: DangerouslySetInnerHTMLSanitized(gameDetails.gameIntro)}}  padding={"0 10px"}></View>
                 }
             </ModalGameIntro>

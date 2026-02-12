@@ -1,14 +1,8 @@
-import {Authenticator, useAuthenticator} from '@aws-amplify/ui-react'
-import TopNav from "../components/TopNav.tsx";
+import {Authenticator} from '@aws-amplify/ui-react'
 import { MyAuthContext } from '../MyContext';
 import {useState} from "react";
 
 export default function Login() {
-  const {  signOut } = useAuthenticator((context) => [
-    context.authStatus,
-    context.user,
-    context.signOut,
-  ]);
   /* Modal Content */
   const [modalContent, setModalContent] = useState({open:false, content:''});
 

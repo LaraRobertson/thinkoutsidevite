@@ -1,17 +1,20 @@
 import {Button, Flex, Heading, View } from "@aws-amplify/ui-react";
-import {useEffect, useState, useContext} from "react";
+import {useContext, useEffect, useState} from "react";
 import GameCard from "./GameCard";
 import { useGames, useCities } from "../../hooks/useGames";
 import type { Game, GameDetails } from "../../types/game";
-import DownIcon from "../../assets/noun-arrow-3044495-FFFFFF.svg?react";
-import UpIcon from "../../assets/noun-arrow-3044516-up-arrow-FFFFFF.svg?react";
+import DownIcon from "../../assets/icons/noun-arrow-3044495-FFFFFF.svg?react";
+import UpIcon from "../../assets/icons/noun-arrow-3044516-up-arrow-FFFFFF.svg?react";
+import {MyAuthContext} from "../../MyContext.tsx";
 
 interface GameListProps {
     setGameDetails: (gameDetails: GameDetails | null) => void;
+    gamesIDUserPlayed: string[];
+    gamesIDUser: string[];
 }
 
 export default function GameList(props: GameListProps) {
-    const { setGameDetails } = props;
+    const { setGameDetails, gamesIDUserPlayed, gamesIDUser } = props;
 
     const [gameLocationPlace, setGameLocationPlace] = useState("");
     const [hideGamesLevels, setHideGamesLevels] = useState(false);
@@ -72,15 +75,30 @@ export default function GameList(props: GameListProps) {
         setGameLocationPlace(location);
         if (!hideGamesLevels) setHideGamesLevels(true);
     };
-    
+    const context = useContext(MyAuthContext);
+    if (!context) throw new Error("GameIntro must be used within MyAuthContext.Provider");
+    const { setModalContent, user } = context;
+    const handleMyStats = () => {
+        setModalContent({
+            gameDesigner: "",
+            puzzleID: "",
+            open: true, content: "My Stats", id: "", modalStyle: "game-details", action: "", gameID: "", zoneID: "", updatedDB: false });
+    };
     return (
         <View id="game-list">
 
             <Heading level={6} className="heading" marginBottom="5px">
                 GAMES ARE IN TESTING MODE<br />Please contact info@escapeout.games to report issues.
             </Heading>
-
-            <View className={gameLocationCity ? "dark-background" : "green-background"} margin="0 auto 5px auto" textAlign="center" fontSize=".7em" padding="5px" lineHeight="1.1em">
+            {user && (
+                <Button
+                    className="button button-small background-light show"
+                    onClick={() => handleMyStats()}
+                >
+                    My Stats
+                </Button>
+            )}
+            <View className={gameLocationCity ? "dark-background-link" : "green-background-link"} margin="0 auto 5px auto" textAlign="center" fontSize=".7em" padding="5px" lineHeight="1.1em">
                     <Heading level={6} className="heading" marginBottom="5px">
                         {(((gameListByCity.length === 0)&&!gameLocationCity) && !loading) ? "Select Game City: Click on a city to see game locations" : `Game City: ${gameLocationCity}`}
                         {(gameListByCity.length === 0)&&gameLocationCity ? " (no game locations)" : ` (${gameListByCity.length} games)`}
@@ -109,9 +127,13 @@ export default function GameList(props: GameListProps) {
 
             {(gameListByCity.length > 0) && (
                 <View>
-                    <Heading level={5} className="heading" marginBottom="5px" marginTop="15px">
-                        Select Game Location:&nbsp;&nbsp; {gameLocationPlace}
-                    </Heading>
+                    <View className={gameLocationPlace ? "dark-background-link" : "green-background-link"} margin="10px auto 5px auto" textAlign="center" fontSize=".7em" padding="5px" lineHeight="1.1em">
+                        <Heading level={6} className="heading" marginBottom="5px" marginTop="0px">
+                            Select Game Location:&nbsp;&nbsp; {gameLocationPlace}
+                        </Heading>
+                    </View>
+
+
                     <Flex direction="row" justifyContent="flex-start" alignItems="stretch" 
                           alignContent="flex-start" wrap="wrap" gap="1rem" className="select-game">
                         {gameLocationPlaceArray.map((place, index) => (
@@ -153,7 +175,7 @@ export default function GameList(props: GameListProps) {
                     <Flex direction="row" justifyContent="flex-start" alignItems="stretch"
                           alignContent="flex-start" wrap="wrap" gap="1rem" className="select-game">
                         {gameListByCityPlace.map((game) => (
-                            <GameCard key={game.id} game={game} setGameDetails={setGameDetails} />
+                            <GameCard key={game.id} game={game} setGameDetails={setGameDetails} hasPlayed={gamesIDUserPlayed.includes(game.id)} canPlay={gamesIDUser.includes(game.id)} />
                         ))}
                     </Flex>
 

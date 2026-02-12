@@ -1,9 +1,9 @@
 import {useState} from "react";
 import {NavLink} from 'react-router-dom';
-import HomeIcon from "../../assets/noun-home-7100601.svg?react";
-import DashBoardIcon from "../../assets/noun-dashboard-7064012.svg?react";
-import GameIcon from "../../assets/noun-tactics-6452991.svg?react";
-import UserIcon from "../../assets/noun-user-1994976.svg?react";
+import HomeIcon from "../../assets/icons/noun-home-7100601.svg?react";
+import DashBoardIcon from "../../assets/icons/noun-dashboard-7064012.svg?react";
+import GameIcon from "../../assets/icons/noun-tactics-6452991.svg?react";
+import UserIcon from "../../assets/icons/noun-user-1994976.svg?react";
 
 export default function AdminHeading(props: {userName: string}) {
     const [routeSelection, setRouteSelection] = useState({section:"dashboard"})
