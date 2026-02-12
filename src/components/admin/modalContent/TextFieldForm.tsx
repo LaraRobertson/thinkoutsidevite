@@ -3,7 +3,7 @@ import {useContext, useEffect, useState} from "react";
 import {MyAuthContext} from "../../../MyContext.tsx";
 import { dataService } from "../../../services/dataService.ts";
 import type { Schema } from "../../../../amplify/data/resource.ts";
-import {getDefaultModalContent} from "../../../utils/modalHelpers.ts";
+import {getDefaultModalContent, createModalContent} from "../../../utils/modalHelpers.ts";
 
 type TextField = Schema["TextField"]["type"];
 type TextFieldFormState = Omit<TextField, 'id' | 'createdAt' | 'updatedAt' | 'puzzle' >;
@@ -80,7 +80,7 @@ export default function TextFieldForm() {
             
             setFormCreateTextFieldState(initialStateCreateTextField);
             /* close Modal */
-            setModalContent(getDefaultModalContent());
+            setModalContent(createModalContent({ updatedDB: true }));
             window.alert("TextField created successfully!");
         } catch (err) {
             console.error('error creating TextField:', err);

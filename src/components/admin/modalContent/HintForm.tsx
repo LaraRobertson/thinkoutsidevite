@@ -3,7 +3,7 @@ import {useContext, useEffect, useState} from "react";
 import {MyAuthContext} from "../../../MyContext.tsx";
 import { dataService } from "../../../services/dataService.ts";
 import type { Schema } from "../../../../amplify/data/resource.ts";
-import {getDefaultModalContent} from "../../../utils/modalHelpers.ts";
+import {getDefaultModalContent, createModalContent} from "../../../utils/modalHelpers.ts";
 
 type GameHint = Schema["GameHint"]["type"];
 type HintFormState = Omit<GameHint, 'id' | 'createdAt' | 'updatedAt' | 'game'>;
@@ -57,13 +57,7 @@ export default function HintForm() {
             const client = dataService.getAuthClient();
             await client.models.GameHint.create(formCreateHintState);
             setFormCreateHintState(initialStateCreateHint);
-            setModalContent({
-                open: false,
-                content: "",
-                id: "",
-                action: "",
-                updatedDB: true
-            });
+            setModalContent(createModalContent({ updatedDB: true }));
         } catch (err) {
             console.log('error creating GameHint:', err);
         }
@@ -89,13 +83,7 @@ export default function HintForm() {
             }
             
             setFormCreateHintState(initialStateCreateHint);
-            setModalContent({
-                open: false,
-                content: "",
-                id: "",
-                action: "",
-                updatedDB: true
-            });
+            setModalContent(createModalContent({ updatedDB: true }));
             window.alert("Hint created successfully!");
         } catch (err) {
             console.error('error creating GameHint:', err);

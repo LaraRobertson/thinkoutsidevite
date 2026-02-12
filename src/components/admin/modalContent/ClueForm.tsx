@@ -13,7 +13,7 @@ import {getUrl, uploadData} from "aws-amplify/storage";
 import {IconClueDisplay} from "../../sharedComponents.tsx";
 import { dataService } from "../../../services/dataService.ts";
 import type { Schema } from "../../../../amplify/data/resource.ts";
-import {getDefaultModalContent} from "../../../utils/modalHelpers.ts";
+import {getDefaultModalContent, createModalContent} from "../../../utils/modalHelpers.ts";
 
 type GameClue = Schema["GameClue"]["type"];
 
@@ -94,7 +94,7 @@ export default function ClueForm() {
 
             setFormCreateClueState(initialStateCreateClue);
             /* close modal */
-            setModalContent(getDefaultModalContent());
+            setModalContent(createModalContent({ updatedDB: true }));
             window.alert("Clue created successfully!");
         } catch (err) {
             console.error('error creating clue:', err);

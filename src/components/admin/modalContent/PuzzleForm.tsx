@@ -4,8 +4,7 @@ import {MyAuthContext} from "../../../MyContext.tsx";
 import {getUrl, uploadData} from "aws-amplify/storage";
 import { dataService } from "../../../services/dataService.ts";
 import type { Schema } from "../../../../amplify/data/resource.ts";
-import {getDefaultModalContent} from "../../../utils/modalHelpers.ts";
-
+import { getDefaultModalContent, createModalContent } from "../../../utils/modalHelpers";
 type GamePuzzle = Schema["GamePuzzle"]["type"];
 
 type PuzzleFormState = Omit<GamePuzzle, 'id' | 'createdAt' | 'updatedAt' | 'textField' | 'game'>;
@@ -67,13 +66,19 @@ export default function PuzzleForm() {
             window.alert("Zone selection is required");
             return;
         }
+        if (!formCreatePuzzleState.gameID) {
+            window.alert("Game ID is required");
+            return;
+        }
         try {
             const puzzle = {
-                ...formCreatePuzzleState,
-                puzzleName: formCreatePuzzleState.puzzleName!,
-                gamePlayZoneID: formCreatePuzzleState.gamePlayZoneID!,
-                gameID: formCreatePuzzleState.gameID!,
-                order: formCreatePuzzleState.order || 0
+                gameID: formCreatePuzzleState.gameID,
+                gamePlayZoneID: formCreatePuzzleState.gamePlayZoneID,
+                puzzleName: formCreatePuzzleState.puzzleName,
+                puzzleImage: formCreatePuzzleState.puzzleImage,
+                puzzleClueText: formCreatePuzzleState.puzzleClueText,
+                order: formCreatePuzzleState.order || 1,
+                disabled: formCreatePuzzleState.disabled || false
             };
             const client = dataService.getAuthClient();
             const result = await client.models.GamePuzzle.create(puzzle);
@@ -86,7 +91,7 @@ export default function PuzzleForm() {
             
             setFormCreatePuzzleState(initialStateCreatePuzzle);
             /* close modal */
-            setModalContent(getDefaultModalContent());
+            setModalContent(createModalContent({ updatedDB: true }));
             window.alert("Puzzle created successfully!");
         } catch (err) {
             console.error('error creating GamePuzzle:', err);
