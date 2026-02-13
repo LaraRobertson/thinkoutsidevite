@@ -421,3 +421,21 @@ a {
 .puzzleModal .background-dark .close {
   color: var(--color-light);
 }
+.game-example {
+  height: 680px;
+  width: 400px;
+  background: grey;
+  position:relative;
+  border: 1px solid black;
+
+}
+.game-example .game-container {
+  min-height: 100%;
+}
+.center {text-align:center;}
+.howtoplay {
+  display:flex;
+  flex-direction: column;
+  align-items: center;
+  ba
+}

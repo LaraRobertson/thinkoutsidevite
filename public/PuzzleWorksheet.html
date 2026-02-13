@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Puzzle Worksheet</title>
+
+    <style>
+        @page {
+            size: 8.5in 11in;
+            margin: 0.5in;
+        }
+
+        body {
+            font-family: "Helvetica", Arial, sans-serif;
+            background: #fff;
+            margin: 0;
+            padding: 0;
+        }
+
+        .page {
+            width: 7.5in;
+            margin: 0 auto;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 25px;
+            letter-spacing: 1px;
+        }
+
+        .form-box {
+            border: 2px solid #000;
+            border-radius: 6px;
+            padding: 18px;
+        }
+
+        .section {
+            margin-bottom: 24px;
+        }
+
+        .label {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 6px;
+        }
+
+        .line {
+            border-bottom: 1.5px solid #000;
+            height: 28px;
+            margin-bottom: 8px;
+        }
+
+        .zone-line {
+            border-bottom: 2px solid #000;
+            height: 32px;
+            margin-top: 6px;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            margin-top: 20px;
+            color: #444;
+        }
+
+        @media print {
+            body {
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="page">
+
+    <div class="title">Puzzle Worksheet</div>
+
+    <div class="form-box">
+
+        <!-- Zone -->
+        <div class="section">
+            <div class="label">Zone:</div>
+            <div class="zone-line">name:</div>
+            <div class="zone-line">description:</div>
+        </div>
+
+        <!-- Puzzles -->
+        <div class="section">
+            <div class="label">Puzzles Questions:</div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+        </div>
+        <div class="section">
+            <div class="label">Puzzles Answers:</div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+        </div>
+
+        <!-- Clue -->
+        <div class="section">
+            <div class="label">Clues</div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+        </div>
+
+        <!-- Hint -->
+        <div class="section">
+            <div class="label">Hints</div>
+            <div class="line"></div>
+            <div class="line"></div>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        Puzzle Worksheet
+        © ThinkOutsideGames. All rights reserved.
+    </div>
+
+</div>
+</body>
+</html>

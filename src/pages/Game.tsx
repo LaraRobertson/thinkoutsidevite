@@ -378,7 +378,7 @@ export default function Game() {
                     <>
                     <View className={isChecked ? "game-container background-dark" : "game-container background-light"}>
                         <div style={missionStyle}>
-                            Mission: <span className="mission" data-wp-text="context.mission">{game.gameGoals}</span>
+                            Mission: <span className="mission">{game.gameGoals}</span>
                         </div>
                         <div className="button-bar">
                             <button className={isChecked ? "button background-dark " : "button background-light "} onClick={() => setModalContentMap({
@@ -404,10 +404,8 @@ export default function Game() {
                                     }}>Quit
                             </button>
                         </div>
-                        <div className="puzzle-solved" data-wp-context="{ &quot;counter&quot;: 0 }"
-                             data-wp-watch="callbacks.logCounter">
-                            Puzzles
-                            Solved? <span>{(gamePuzzleSolved && gamePuzzleSolved.length) ? gamePuzzleSolved.length : 0}</span>/<span>{gamePuzzleArray.length}</span>
+                        <div className="puzzle-solved">
+                            Puzzles Solved? <span>{(gamePuzzleSolved && Object.keys(gamePuzzleSolved).length) ? Object.keys(gamePuzzleSolved).length : 0}</span>/<span>{gamePuzzleArray.length}</span>
 
                         </div>
                         <View aria-label="Time" className="time time-change">
