@@ -81,14 +81,13 @@ return (
                             <NavLink to="/community" className={({ isActive}) => isActive ? "active" : ""} onClick={toggleModal}>
                                 Community
                             </NavLink>
-                            <ul><li><a href={"#"} onClick={toggleModal}>build a game</a></li></ul>
                         </li>
                         <li>
                             <NavLink to="/howtoplay" className={({ isActive}) => isActive ? "active" : ""} onClick={toggleModal}>
                                 How To Play
                             </NavLink>
                         </li>
-                        <li className={authStatus=="authenticated" ? "" : "hide"}>
+                        <li className={(authStatus=="authenticated" && user?.signInDetails?.loginId === "lararobertson70@gmail.com") ? "" : "hide"}>
                             <NavLink to="/admin" className={({ isActive}) => isActive ? "active" : ""} onClick={toggleModal}>
                                 Admin
                             </NavLink>

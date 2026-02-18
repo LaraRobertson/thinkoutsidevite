@@ -3,7 +3,7 @@ import {useContext, useEffect, useState} from "react";
 import {MyAuthContext} from "../../../MyContext.tsx";
 import { dataService } from "../../../services/dataService.ts";
 import type { Schema } from "../../../../amplify/data/resource.ts";
-import {getDefaultModalContent, createModalContent} from "../../../utils/modalHelpers.ts";
+import {updateSingleGame} from "../../../utils/modalHelpers.ts";
 
 type TextField = Schema["TextField"]["type"];
 type TextFieldFormState = Omit<TextField, 'id' | 'createdAt' | 'updatedAt' | 'puzzle' >;
@@ -79,8 +79,8 @@ export default function TextFieldForm() {
             }
             
             setFormCreateTextFieldState(initialStateCreateTextField);
-            /* close Modal */
-            setModalContent(createModalContent({ updatedDB: true }));
+            /* close Modal/update single game */
+            setModalContent(updateSingleGame());
             window.alert("TextField created successfully!");
         } catch (err) {
             console.error('error creating TextField:', err);
@@ -108,8 +108,8 @@ export default function TextFieldForm() {
                 return;
             }
             setFormCreateTextFieldState(initialStateCreateTextField);
-            /* close Modal */
-            setModalContent(getDefaultModalContent());
+            /* close Modal/update single game */
+            setModalContent(updateSingleGame());
             window.alert("TextField updated successfully!");
         } catch (err) {
             console.error('error updating TextField:', err);

@@ -5,7 +5,7 @@ import {MyAuthContext} from "../../MyContext";
 import {IconClueDisplay} from "../sharedComponents";
 import { dataService } from "../../services/dataService";
 import type { Schema } from "../../../amplify/data/resource";
-import { getDefaultModalContent, createModalContent } from "../../utils/modalHelpers";
+import {getDefaultModalContent, createModalContent, updateSingleGame} from "../../utils/modalHelpers";
 
 type Game = Schema["Game"]["type"];
 type City = Schema["City"]["type"];
@@ -19,8 +19,7 @@ export default function GameSection() {
     const [cities, setCities] = useState<City[]>([]);
     const [gameType, setGameType] = useState("all");
     const [gameVisible, setGameVisible] = useState("");
-    const [gameDesigner, setGameDesigner] = useState("");
-    const [gameIndex, setGameIndex] = useState<number>(0);
+    //const [gameDesigner, setGameDesigner] = useState("");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [gamePlayZoneObject, setGamePlayZoneObject] = useState<Record<string, any>>({});
 
@@ -42,6 +41,7 @@ export default function GameSection() {
     
     async function fetchGames() {
         console.log("fetchGames called - gamesFilter:", JSON.stringify(gamesFilter));
+        setGameVisible("");
         for (const key in gamesFilter) {
             const filterValue = gamesFilter[key];
             console.log(`${key}: ${JSON.stringify(filterValue)}`);
@@ -77,8 +77,7 @@ export default function GameSection() {
             const client = dataService.getAuthClient();
             await client.models.Game.delete({ id: props.gameID });
             setGameVisible("");
-            setGameDesigner("");
-            setGameIndex(0);
+            //setGameDesigner("");
             fetchGames();
         } catch (err) {
             console.log('error deleting games:', err);
@@ -94,7 +93,8 @@ export default function GameSection() {
         } catch (err) {
             console.log('error deleting zone:', err);
         }
-        fetchGames();
+        /* close Modal/update single game */
+        setModalContent(updateSingleGame());
     }
 
     async function deleteHint(props: {hintID: string; hintName: string}) {
@@ -106,7 +106,8 @@ export default function GameSection() {
         } catch (err) {
             console.log('error deleting hint:', err);
         }
-        fetchGames();
+        /* close Modal/update single game */
+        setModalContent(updateSingleGame());
     }
 
     async function deleteClue(props: {clueID: string; gameClueName: string}) {
@@ -118,7 +119,8 @@ export default function GameSection() {
         } catch (err) {
             console.log('error deleting clue:', err);
         }
-        fetchGames();
+        /* close Modal/update single game */
+        setModalContent(updateSingleGame());
     }
     
     async function deletePuzzle(props: {puzzleID: string; puzzleName: string}) {
@@ -130,7 +132,8 @@ export default function GameSection() {
         } catch (err) {
             console.log('error deleting puzzle:', err);
         }
-        fetchGames();
+        /* close Modal/update single game */
+        setModalContent(updateSingleGame());
     }
     
     async function deleteTextField(props: {textFieldID: string; textFieldName: string}) {
@@ -142,7 +145,8 @@ export default function GameSection() {
         } catch (err) {
             console.log('error deleting textField:', err);
         }
-        fetchGames();
+        /* close Modal/update single game */
+        setModalContent(updateSingleGame());
     }
 
     useEffect(() => {
@@ -157,26 +161,60 @@ export default function GameSection() {
     }, [gamesFilter]);
 
     useEffect(() => {
-        console.log("***useEffect***:  fetchGames() (updatedDB");
-        /* close Modal */
-        setModalContent(getDefaultModalContent());
-        fetchGames();
+        if (modalContent.updatedDB && gameVisible) {
+            console.log("***useEffect***: refreshing game after form update");
+            fetchSingleGame(gameVisible);
+            setModalContent(getDefaultModalContent());
+        }
     }, [modalContent.updatedDB]);
 
-    function setGameVisibleFunction(gameID: string, index: number, gameDesigner: string) {
-        setGameVisible(gameID);
-        setGameDesigner(gameDesigner);
-        setGameIndex(index);
-        let newObject = {};
-        const gamePlayZones = games[index]?.gamePlayZone;
-        if (gamePlayZones && Array.isArray(gamePlayZones)) {
-            for (let i = 0; i < gamePlayZones.length; i++) {
-                const key = gamePlayZones[i].id;
-                const value = gamePlayZones[i].gameZoneName;
-                newObject = {...newObject, [key]: value};
+
+    async function fetchSingleGame(gameID: string) {
+        console.log("fetchSingleGame: " + gameID);
+        setGames([]);
+        try {
+            const client = dataService.getClient();
+            const { data: gameFromAPI } = await client.models.Game.get(
+            {id: gameID},
+            {
+                selectionSet: ['id', 'gameName', 'gameDescription', 'gameLogisticInfo', 'gameSummary', 'gameLocationPlace', 'latitude', 'longitude', 'gameLocationPlaceDetails', 'gameLocationCity', 'gameDesigner', 'gameLevel', 'walkingDistance', 'playZones', 'gameImage', 'gameType', 'gameWinMessage', 'gameWinImage', 'gameGoals', 'gameIntro', 'gameMap', 'type', 'order', 'disabled', 'userID', 'createdAt', 'updatedAt', 'gamePlayZone.*', 'gameHint.*', 'gameClue.*', 'gamePuzzle.*', 'gamePuzzle.textField.*']
             }
+            );
+            if (gameFromAPI) {
+                console.log("Single game data:", gameFromAPI);
+                //const updatedGames = games.map(g => g.id === gameID ? gameFromAPI : g);
+                //console.log("updatedGames:", updatedGames);
+                //.get returns an object not an array
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                setGames([gameFromAPI as any]);
+
+
+                let newObject = {};
+                const gamePlayZones = games[0]?.gamePlayZone;
+                if (gamePlayZones && Array.isArray(gamePlayZones)) {
+                    for (let i = 0; i < gamePlayZones.length; i++) {
+                        const key = gamePlayZones[i].id;
+                        const value = gamePlayZones[i].gameZoneName;
+                        newObject = {...newObject, [key]: value};
+                    }
+                }
+                setGamePlayZoneObject(newObject);
+            }
+        } catch (err) {
+            console.error('error fetching single game:', err);
         }
-        setGamePlayZoneObject(newObject);
+    }
+
+    function closeSingleGame() {
+        setGameVisible("");
+        //setGameDesigner("");
+        fetchGames();
+    }
+
+    async function setGameVisibleFunction(gameID: string) {
+        setGameVisible(gameID);
+        //setGameDesigner(gameDesigner);
+        await fetchSingleGame(gameID);
     }
     
     function handleCityForm() {
@@ -280,8 +318,14 @@ export default function GameSection() {
     }
 
     const [puzzleZoneValue, setPuzzleZoneValue] = useState("select zone");
-    const [clueZoneValue, setClueZoneValue] = useState("select zone")
-    const [hintZoneValue, setHintZoneValue] = useState("select zone")
+    const [clueZoneValue, setClueZoneValue] = useState("select zone");
+    const [hintZoneValue, setHintZoneValue] = useState("select zone");
+
+    function setAllZoneValue(props: {zoneID?: string}) {
+        setPuzzleZoneValue(props.zoneID || "select zone");
+        setClueZoneValue(props.zoneID || "select zone");
+        setHintZoneValue(props.zoneID || "select zone");
+    }
     
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const PuzzleZoneDropDown = (props: {visibleGame: any}) => {
@@ -400,12 +444,12 @@ export default function GameSection() {
 
                     </TableRow>
                 </TableHead>}
-                    <TableBody>
-                {games.map((game, index) => (
+                    <TableBody key={'x'}>
+                {Array.isArray(games) && games.map((game) => (
                     <TableRow key={game.id}>
                         {(gameVisible === "") &&
                         <>
-                        <TableCell><Button gap="0.1rem" size="large"  className="plus-minus"  onClick={() => setGameVisibleFunction(game.id, index, game.gameDesigner || "")}>+</Button>
+                        <TableCell><Button gap="0.1rem" size="large"  className="plus-minus"  onClick={() => setGameVisibleFunction(game.id)}>+</Button>
                         </TableCell>
                         <TableCell>{game.gameName}</TableCell>
                         <TableCell>{game.gameType}</TableCell>
@@ -417,7 +461,7 @@ export default function GameSection() {
                         <TableCell>
 
                             <Button gap="0.1rem" marginRight="10px" size="small"
-                                    onClick={() => handleGameForm({"gameID": game.id, "action": "edit"})}>edit</Button>
+                                    onClick={() => setGameVisibleFunction(game.id)}>edit</Button>
                             <Button gap="0.1rem" size="small" onClick={() => handleStats({"gameID": game.id, "gameName": game.gameName})}>stats</Button>
 
                         </TableCell>
@@ -431,7 +475,7 @@ export default function GameSection() {
                                    marginBottom={"30px"}
                                    gap={".1rem"}
                                    className={"game-detail-row"}>
-                                <Button gap="0.1rem" size="small" className="plus-minus" onClick={() => setGameVisible("")}>-</Button>
+                                <Button gap="0.1rem" size="small" className="plus-minus" onClick={() => closeSingleGame()}>-</Button>
                                 <Heading level={5} color="black" marginRight={"1rem"}>
 
                                     {game.gameName}:  </Heading>
@@ -482,7 +526,7 @@ export default function GameSection() {
                             <TableRow className={"zones"}>
                                 <TableCell colSpan={7}>
                                     <Flex>
-                                        <Heading level={4} color="black">Zones</Heading>
+                                        <Heading level={4} color="black">Zones:</Heading>
                                         <Button gap="0.1rem" marginBottom="1rem"  size="small" className={"blue-duke"}
                                                 onClick={() => handleZoneForm({"gameID": game.id, "zoneID": "", "action": "add"})}>
                                             <span style={{fontSize: "20px"}}>+</span> add zone</Button>
@@ -528,8 +572,9 @@ export default function GameSection() {
                                                             <Button  gap="0.1rem" size="small"
                                                                      onClick={() => handleClueForm({"clueID": "", "gameID": game.id, "zoneID": zone.id, "action": "add"})}>
                                                                 <span style={{fontSize: "12px"}}>+</span> clue</Button>
-                                                            {(gamePlayZoneObject[(zone.id)] == null) &&  <Button  gap="0.1rem" size="small" color={"yellow"}
-                                                                                                                          onClick={() => setGameVisibleFunction(gameVisible, gameIndex, gameDesigner)}>set zone</Button>}
+                                                            {/* got rid of "setGameVisibleFunction with text "set zone" ... could be to just look at one zone at a time */}
+                                                            <Button  gap="0.1rem" size="small" color={"green"} onClick={() => setAllZoneValue({"zoneID":zone.id})}>set zone</Button>
+
                                                             <Button  gap="0.1rem" size="small" color={"red"}
                                                                      onClick={() => deleteZone({"zoneID": zone.id, "gameZoneName": zone.gameZoneName})}>x</Button>
                                                         </TableCell>

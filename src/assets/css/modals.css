@@ -179,6 +179,7 @@
     display:flex;
     justify-content: flex-start;
     padding-left: 5%;
+    padding-bottom:5%;
     gap: 1em;
 }
 .modalContainer h4 {

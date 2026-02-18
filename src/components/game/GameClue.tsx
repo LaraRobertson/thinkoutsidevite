@@ -136,7 +136,7 @@ export default function GameClue(props: GameClueProps) {
                     <div>
                         <h4>clue:</h4>
                         {clue.gameClueText}
-                        <button className={"button background-light"}>close</button>
+                        <button className={isChecked? "button background-light" : "button background-dark"}>close</button>
                     </div>
                     ):(
                     <IconClueDisplay index={index} hide="true" gameClueIcon={clue.gameClueIcon || ''} isChecked={isChecked || false}/>

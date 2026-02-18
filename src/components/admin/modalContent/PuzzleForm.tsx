@@ -4,7 +4,7 @@ import {MyAuthContext} from "../../../MyContext.tsx";
 import {getUrl, uploadData} from "aws-amplify/storage";
 import { dataService } from "../../../services/dataService.ts";
 import type { Schema } from "../../../../amplify/data/resource.ts";
-import { getDefaultModalContent, createModalContent } from "../../../utils/modalHelpers";
+import {updateSingleGame} from "../../../utils/modalHelpers";
 type GamePuzzle = Schema["GamePuzzle"]["type"];
 
 type PuzzleFormState = Omit<GamePuzzle, 'id' | 'createdAt' | 'updatedAt' | 'textField' | 'game'>;
@@ -90,8 +90,8 @@ export default function PuzzleForm() {
             }
             
             setFormCreatePuzzleState(initialStateCreatePuzzle);
-            /* close modal */
-            setModalContent(createModalContent({ updatedDB: true }));
+            /* close Modal/update single game */
+            setModalContent(updateSingleGame());
             window.alert("Puzzle created successfully!");
         } catch (err) {
             console.error('error creating GamePuzzle:', err);
@@ -120,7 +120,8 @@ export default function PuzzleForm() {
             }
             
             setFormCreatePuzzleState(initialStateCreatePuzzle);
-            setModalContent(getDefaultModalContent());
+            /* close Modal/update single game */
+            setModalContent(updateSingleGame());
             window.alert("Puzzle updated successfully!");
         } catch (err) {
             console.error('error updating GamePuzzle:', err);

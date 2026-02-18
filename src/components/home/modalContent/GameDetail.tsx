@@ -78,7 +78,7 @@ export default function GameDetail(props: GameDetailProps) {
                         click on Puzzle to see what the questions are<br />
                         click on the Clues to help solve the Puzzle<br />
                         if you need a hint - click on hint</div>
-                        <div className="game-example">
+                        <div className="game-example howtoplay">
                         <View>
 
                             <div className="game-container background-light center">

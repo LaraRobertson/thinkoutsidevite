@@ -11,7 +11,7 @@ import {MyAuthContext} from "../../../MyContext.tsx";
 import { uploadData, getUrl } from 'aws-amplify/storage';
 import { dataService } from "../../../services/dataService.ts";
 import type { Schema } from "../../../../amplify/data/resource.ts";
-import {getDefaultModalContent} from "../../../utils/modalHelpers.ts";
+import {getDefaultModalContent, updateSingleGame} from "../../../utils/modalHelpers.ts";
 
 type GamePlayZone = Schema["GamePlayZone"]["type"];
 
@@ -121,13 +121,8 @@ export default function ZoneForm() {
             }
             
             setFormCreateZoneState(initialStateCreateZone);
-            setModalContent({
-                open: false,
-                content: "",
-                id: "",
-                action: "",
-                updatedDB: true
-            });
+            /* close Modal/update single game */
+            setModalContent(updateSingleGame());
             window.alert("Zone created successfully!");
         } catch (err) {
             console.error('error creating GamePlayZone:', err);
@@ -156,13 +151,8 @@ export default function ZoneForm() {
             }
             
             setFormCreateZoneState(initialStateCreateZone);
-            setModalContent({
-                open: false,
-                content: "",
-                id: "",
-                action: "",
-                updatedDB: true
-            });
+            /* close Modal/update single game */
+            setModalContent(updateSingleGame());
             window.alert("Zone updated successfully!");
         } catch (err) {
             console.error('error updating GamePlayZone:', err);

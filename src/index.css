@@ -23,6 +23,7 @@
   --mobile-width: 780px;
   --amplify-components-heading-color: #0b441d;
 }
+
 body {
   margin: 0;
   display: flex;
@@ -77,6 +78,7 @@ body {
     font-size: 1rem;
   }
 }
+
 #root {
   margin: 0 auto;
   padding:0;
@@ -224,6 +226,7 @@ a {
 .navigation ul li a:hover {
   color: var(--active-link); /* Hover effect */
 }
+
 @media screen and (max-width: 768px) {
   .hamburger-container {
     display: block; /* Show hamburger icon */
@@ -273,6 +276,7 @@ a {
 
   }
 }
+
 /* flex classes */
 .flex-parent-center {
   display: flex;
@@ -421,20 +425,33 @@ a {
 .puzzleModal .background-dark .close {
   color: var(--color-light);
 }
+
 .game-example {
-  height: 680px;
-  width: 400px;
+  max-width: 400px;
   background: grey;
   position:relative;
   border: 1px solid black;
-
 }
 .game-example .game-container {
   min-height: 100%;
 }
-.center {text-align:center;}
+.center {
+  text-align:center;
+}
+
 .howtoplay {
   display:flex;
   flex-direction: column;
   align-items: center;
+}
+
+.howtoplay .game-container {
+    position:relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    margin: 0 auto;
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.03);
+    padding-bottom: 50px;
 }

@@ -6,18 +6,48 @@ import Diary from "../assets/icons/noun-diary-6966311.svg?react";
 
 export default function HowToPlay() {
     return (
-        <div className="howtoplay background-light">
-            <h1>How To Play</h1>
+        <>
+            <section className={"main-container background-dark howtoplay"} >
+                <h1>How To Play</h1>
+                <h4>Review Example Game Below</h4>
+                <div className="hero-column-container">
+                    <div className={"hero-column"}>
+                        <ul>
+                            <li><strong>Zones: </strong>In this game there are 2 Zones (could be 1 or 10) - click on zone 2 for more puzzles and clues</li>
+                            <li><strong>Zones</strong> are the center of the <strong>Play Area</strong>. For Zone 1 the center of the area is the sign. Clues and Hints in Zone 1 should reference
+                                things within (or that you can see from) 100 feet of the center of Zone 1 area. Zone 2 is a different area and the Clues and Hints will reference things within that area.
+                              </li>
+                            <li>There should be an image and description of the center of the <strong>Zone</strong>.</li>
+                            <li>There should be a map with a marker for the specific <strong>Zone</strong> (all the zones should be on the map in the game).</li>
 
-            <div><strong>This is an example game below</strong><br />
-                There are 2 Zones - click on zone 2 for more puzzles and clues<br />
-                The image shows the center of zone 1 and the description helps you find it<br />
-                click on Puzzle to see what the questions are<br />
-                click on the Clues to help solve the Puzzle<br />
-                if you need a hint - click on hint</div>
+                        </ul>
+                    </div>
+                    <div className={"hero-column"}>
+                        <ul>
+                            <li><strong>Puzzles</strong> will open a small window with 1 or more questions when you click the icon. You must answer all the questions to solve the <strong>Puzzle</strong>.</li>
+                            <li>Click on the <strong>Clues</strong> to get information about how to answer the questions and solve the <strong>Puzzles</strong></li>
+                            <li>Each <strong>Zone</strong> can have 1 or more <strong>Puzzles</strong> and <strong>Clues</strong>.
+                            </li>
+                            <li><strong>Hints</strong> should have better clues but 5 minutes is added to your score each time you use a <strong>Hint</strong>
+                            </li>
+                            <li>Note: the game tracks time started, hint time and number of puzzles solved.</li>
+                            <li>Your <strong>Score</strong> is based on the amount of time it takes to complete the game plus hint time</li>
+
+                        </ul>
+                    </div>
+                </div>
+                <h4 style={{maxWidth:"500px", padding:"1rem"}}>The Leaderboard only records Scores for games you have played for the first time. If you start a game and hit quit, or don't complete it, then you will never get a chance for the leaderboard.</h4>
+                <h5 style={{maxWidth:"700px", fontWeight:"normal", padding:"1rem"}}>
+                    The game always asks for a team name even if 1 person - Leaderboard display is based on your team name. If more than one person (team) wants to play the game then 1 person (leader) with 1 login must start the game.
+                    The other team members can then start the game with the same login (they can log in before starting the game).
+                    What this does is give other members access to the game information/puzzles/clues to
+                    help the leader enter the right answers.
+                    The leader's score (if it is their first time) will be recorded if that person finishes the game first. </h5>
+
+            </section>
+            <section className={"main-container background-dark howtoplay"}>
             <div className="game-example">
                 <View>
-
                     <div className="game-container background-light center">
                         <div style={{textAlign: "center", fontWeight: "bold", fontSize: "1.2em"}}>Mission: <span className="mission" data-wp-text="context.mission">To Win Game</span></div>
                         <div className="button-bar"><button className="button background-light ">Zone Map</button><button className="button background-light ">Switch to Dark</button><button className="button background-light ">Help</button><button className="button background-light ">Quit</button></div>
@@ -65,10 +95,9 @@ export default function HowToPlay() {
                             </div>
                         </div>
                     </div>
-
-
                 </View>
             </div>
-        </div>
+        </section>
+        </>
     )
 }

@@ -3,7 +3,7 @@ import {useContext, useEffect, useState} from "react";
 import {MyAuthContext} from "../../../MyContext.tsx";
 import { dataService } from "../../../services/dataService.ts";
 import type { Schema } from "../../../../amplify/data/resource.ts";
-import {getDefaultModalContent} from "../../../utils/modalHelpers.ts";
+import {getDefaultModalContent, updateSingleGame} from "../../../utils/modalHelpers.ts";
 
 type City = Schema["City"]["type"];
 type Game = Schema["Game"]["type"];
@@ -115,8 +115,8 @@ export default function GameForm() {
             }
             
             setFormCreateGameState(initialStateCreateGame);
-            /* close Modal */
-            setModalContent(getDefaultModalContent());
+            /* close Modal/update single game */
+            setModalContent(updateSingleGame());
             window.alert("Game created successfully!");
         } catch (err) {
             console.error('error creating games:', err);
@@ -169,8 +169,8 @@ export default function GameForm() {
             }
             
             setFormCreateGameState(initialStateCreateGame);
-            /* close Modal */
-            setModalContent(getDefaultModalContent());
+            /* close Modal/update single game */
+            setModalContent(updateSingleGame());
             window.alert("Game updated successfully!");
         } catch (err) {
             console.error('error updating games:', err);

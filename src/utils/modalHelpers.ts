@@ -30,3 +30,18 @@ export const createModalContent = (overrides: Partial<ModalContent>): ModalConte
     ...getDefaultModalContent(),
     ...overrides
 });
+
+/* close Modal/update single game */
+export const updateSingleGame = (): ModalContent => ({
+    open: false,
+    content: "",
+    id: "",
+    gameID: "",
+    zoneID: "",
+    puzzleID: "",
+    action: "",
+    gameDesigner: "",
+    userEmail: "",
+    modalStyle: "",
+    updatedDB: true
+});

@@ -11,11 +11,24 @@ export default function UserSection() {
     const context = useContext(MyAuthContext);
     if (!context) throw new Error("GameIntro must be used within MyAuthContext.Provider");
     const { setModalContent} = context;
-    const [users] = useState<Array<Schema["User"]["type"]>>([]);
+    const [users, setUsers] = useState<Array<Schema["User"]["type"]>>([]);
+
     useEffect(() => {
         console.log("***useEffect***:  initialize");
         /* close modal */
         setModalContent(getDefaultModalContent());
+        
+        async function fetchUsers() {
+            try {
+                const client = dataService.getClient();
+                const { data } = await client.models.User.list();
+                if (data) setUsers(data);
+            } catch (err) {
+                console.error('Error fetching users:', err);
+            }
+        }
+        
+        fetchUsers();
     }, []);
 
     function handleUserStats(props: { email: string }) {
@@ -34,17 +47,18 @@ export default function UserSection() {
             userEmail: props.userEmail
         }));
     }
+
     
     async function createUser(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
         const form = new FormData(event.currentTarget);
-        const data = {
+        const data1 = {
             userName: form.get("UserName") as string,
             email: form.get("Email") as string,
         };
         try {
             const client = dataService.getAuthClient();
-            const result = await client.models.User.create(data);
+            const result = await client.models.User.create(data1);
             
             if (result.errors) {
                 console.error('Errors creating user:', result.errors);
@@ -53,6 +67,10 @@ export default function UserSection() {
             }
             
             window.alert("User created successfully!");
+            
+            // Refresh user list
+            const { data } = await client.models.User.list();
+            if (data) setUsers(data);
         } catch (err) {
             console.error('error creating user:', err);
             window.alert("Error creating user: " + err);
@@ -85,6 +103,10 @@ export default function UserSection() {
             
             // Finally delete the user
             await client.models.User.delete({ id: props.userID });
+            
+            // Refresh user list
+            const { data } = await client.models.User.list();
+            if (data) setUsers(data);
         } catch (err) {
             console.log('error deleting user:', err);
         }

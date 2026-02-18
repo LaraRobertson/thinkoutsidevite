@@ -1,14 +1,14 @@
-import {Image, TextField, View} from "@aws-amplify/ui-react";
+import {TextField, View} from "@aws-amplify/ui-react";
 import PuzzleIconClosed from "../../assets/icons/noun-locker-6097531.svg?react";
 import PuzzleIconOpen from "../../assets/icons/noun-locker-6097523.svg?react";
 import SafeBoxClosed from "../../assets/icons/noun-safebox-7186604.svg?react";
 import SafeBoxOpen from "../../assets/icons/noun-safebox-open-319684.svg?react";
-import boxClosed from "../../assets/icons/noun-box-locked-4427371.svg";
-import boxOpen from "../../assets/icons/noun-open-package-6999076.svg";
-import safeDepositBoxOpen from "../../assets/icons/noun-safe-deposit-box-open-5414386.svg";
-import safeDepositBoxClosed from "../../assets/icons/noun-safe-deposit-box-closed-6008306.svg";
-import padlockClosed from "../../assets/icons/noun-padlock-closed-2186012.svg";
-import padlockOpen from "../../assets/icons/noun-padlock-open-2185952.svg";
+import BoxClosed from "../../assets/icons/noun-box-locked-4427371.svg?react";
+import BoxOpen from "../../assets/icons/noun-open-package-6999076.svg?react";
+import SafeDepositBoxOpen from "../../assets/icons/noun-safe-deposit-box-open-5414386.svg?react";
+import SafeDepositBoxClosed from "../../assets/icons/noun-safe-deposit-box-closed-6008306.svg?react";
+import PadlockClosed from "../../assets/icons/noun-padlock-closed-2186012.svg?react";
+import PadlockOpen from "../../assets/icons/noun-padlock-open-2185952.svg?react";
 import type { Schema } from "../../../amplify/data/resource";
 import {useContext} from "react";
 import {MyAuthContext} from "../../MyContext.tsx";
@@ -73,15 +73,15 @@ export default function GamePuzzle(props: GamePuzzleProps) {
                 );
             case (props.index % 5 == 0):
                 return (
-                    <Image height="70px" width="70px" src={padlockClosed} alt="padlock closed" />
+                    <PadlockClosed className={isChecked ? "dark-background " : "light-background "} height={50} width={50} />
                 );
             case (props.index % 3 == 0):
                 return (
-                    <Image height="60px" width="60px" src={boxClosed} alt="box closed" />
+                    <BoxClosed className={isChecked ? "dark-background " : "light-background "} height={50} width={50} />
                 );
             case (props.index % 2 == 0):
                 return (
-                    <Image height="70px" width="70px" src={safeDepositBoxClosed} alt="safe deposit box closed" />
+                    <SafeDepositBoxClosed className={isChecked ? "dark-background " : "light-background "} height={50} width={50} />
                 );
             default:
                 return (
@@ -103,15 +103,15 @@ export default function GamePuzzle(props: GamePuzzleProps) {
                 );
             case (props.index % 5 == 0):
                 return (
-                    <Image height="70px" width="70px" src={padlockOpen} alt="padlockOpen" />
+                    <PadlockOpen className={isChecked ? "dark-background " : "light-background "} height={50} width={50} />
                 );
             case (props.index % 3 == 0):
                 return (
-                    <Image height="70px" width="70px" src={boxOpen} alt="box open" />
+                    <BoxOpen className={isChecked ? "dark-background " : "light-background "} height={50} width={50} />
                 );
             case (props.index % 2 == 0):
                 return (
-                    <Image height="70px" width="70px" src={safeDepositBoxOpen} alt="safe deposit box open" />
+                    <SafeDepositBoxOpen className={isChecked ? "dark-background " : "light-background "} height={50} width={50} />
                 );
             default:
                 return (
@@ -139,7 +139,7 @@ export default function GamePuzzle(props: GamePuzzleProps) {
     if (zoneVisible==puzzle.gamePlayZoneID) {
         return (
            <View key={puzzle.id}>
-                <View className={(zoneVisible == puzzle.gamePlayZoneID) ? "show" : "hide"}>
+                <View className={(zoneVisible == puzzle.gamePlayZoneID) ? "show puzzle" : "hide"}>
                     <View>
 
                         {/* if clue or wingame - am changing so you can open it whenever, if it solved you get clue*/}
@@ -154,7 +154,7 @@ export default function GamePuzzle(props: GamePuzzleProps) {
                                   className={gamePuzzleSolved[puzzle.id] ? "show game-item puzzle-solved" : "hide"}
                             >
                                 <IconPuzzleDisplayOpen index={index}/>
-                                <div className={"small"}>{(puzzle.puzzleClueText !== '') ? "has clue" : ""}</div>
+                                <div className={"small"}>{(puzzle.puzzleClueText !== '') ? "has clue" : "solved"}</div>
                             </View>
                             </>
                         ) : (

@@ -160,7 +160,7 @@ export default function ModalPuzzleContent(props: ModalPuzzleContentProps) {
             <h4>Solved Puzzle:</h4>
                 {gamePuzzleDetails.textFields.map((field) => (
                     <div key={field.id}>
-                        Question: {field.label} | Answer: {field.answer}
+                        <strong>Question</strong>: {field.label} <br /><strong>Answer</strong>: {field.answer}
                     </div>
                 ))}
             </div>
@@ -169,10 +169,6 @@ export default function ModalPuzzleContent(props: ModalPuzzleContentProps) {
 
     const renderUnsolvedPuzzle = () => (
         <>
-            <div className="textFieldContainer">
-                <div className={"blue-alert"}>Puzzle not solved.</div>
-            </div>
-            <hr />
             {gamePuzzleDetails.textFields.map((field) => (
                 <div className="textFieldContainer" key={field.id}>
                     <TextField
