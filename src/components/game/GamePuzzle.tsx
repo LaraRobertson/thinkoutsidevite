@@ -1,14 +1,14 @@
 import {TextField, View} from "@aws-amplify/ui-react";
-import PuzzleIconClosed from "../../assets/icons/noun-locker-6097531.svg?react";
-import PuzzleIconOpen from "../../assets/icons/noun-locker-6097523.svg?react";
-import SafeBoxClosed from "../../assets/icons/noun-safebox-7186604.svg?react";
-import SafeBoxOpen from "../../assets/icons/noun-safebox-open-319684.svg?react";
-import BoxClosed from "../../assets/icons/noun-box-locked-4427371.svg?react";
-import BoxOpen from "../../assets/icons/noun-open-package-6999076.svg?react";
-import SafeDepositBoxOpen from "../../assets/icons/noun-safe-deposit-box-open-5414386.svg?react";
-import SafeDepositBoxClosed from "../../assets/icons/noun-safe-deposit-box-closed-6008306.svg?react";
-import PadlockClosed from "../../assets/icons/noun-padlock-closed-2186012.svg?react";
-import PadlockOpen from "../../assets/icons/noun-padlock-open-2185952.svg?react";
+import PuzzleIconClosed from "../../assets/icons/locker.svg?react";
+import PuzzleIconOpen from "../../assets/icons/locker-open.svg?react";
+import SafeBoxClosed from "../../assets/icons/money-safe.svg?react";
+import SafeBoxOpen from "../../assets/icons/money-safe-open.svg?react";
+import BoxClosed from "../../assets/icons/chest.svg?react";
+import BoxOpen from "../../assets/icons/chest-open.svg?react";
+import SafeDepositBoxOpen from "../../assets/icons/chest2-open.svg?react";
+import SafeDepositBoxClosed from "../../assets/icons/chest2.svg?react";
+import PadlockClosed from "../../assets/icons/safe2.svg?react";
+import PadlockOpen from "../../assets/icons/safe2-open.svg?react";
 import type { Schema } from "../../../amplify/data/resource";
 import {useContext} from "react";
 import {MyAuthContext} from "../../MyContext.tsx";
@@ -151,10 +151,10 @@ export default function GamePuzzle(props: GamePuzzleProps) {
                                 puzzleName: puzzle.puzzleName || undefined,
                                 puzzleClueText: puzzle.puzzleClueText || undefined
                             })}
-                                  className={gamePuzzleSolved[puzzle.id] ? "show game-item puzzle-solved" : "hide"}
+                                  className={gamePuzzleSolved[puzzle.id] ? "show game-item puzzle-solved-icon" : "hide"}
                             >
                                 <IconPuzzleDisplayOpen index={index}/>
-                                <div className={"small"}>{(puzzle.puzzleClueText !== '') ? "has clue" : "solved"}</div>
+                                <div className={"small"}>{(puzzle.puzzleClueText !== '') ? "solved and has clue" : "solved"}</div>
                             </View>
                             </>
                         ) : (

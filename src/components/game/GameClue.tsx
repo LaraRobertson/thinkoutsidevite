@@ -1,10 +1,10 @@
 import {View} from "@aws-amplify/ui-react";
-import Diary from "../../assets/icons/noun-diary-6966311.svg?react";
-import MessageInABottle from "../../assets/icons/noun-message-in-a-bottle-5712014.svg?react";
-import ClueIcon from "../../assets/icons/noun-clue-4353248.svg?react";
-import ClueNoteIcon from "../../assets/icons/noun-note-question-1648398.svg?react";
-import Envelope from "../../assets/icons/noun-message-6963433.svg?react";
-import TornPaper from "../../assets/icons/noun-torn-paper-3017230.svg?react";
+import Diary from "../../assets/icons/diary.svg?react";
+import MessageInABottle from "../../assets/icons/message-in-a-bottle.svg?react";
+import ClueIcon from "../../assets/icons/magnifying-glass.svg?react";
+import ClueNoteIcon from "../../assets/icons/note-question.svg?react";
+import Envelope from "../../assets/icons/envelope.svg?react";
+import TornPaper from "../../assets/icons/torn-paper.svg?react";
 import {keyID} from "../helper";
 import type { Schema } from "../../../amplify/data/resource";
 import {useContext} from "react";
@@ -33,65 +33,65 @@ const IconClueDisplay = (props: IconClueDisplayProps) => {
         switch (true) {
             case (props.gameClueIcon == "diary"):
                 return (
-                    <Diary className={props.isChecked ? "dark-background " : "light-background "} height={70} width={70} />
+                    <Diary className={props.isChecked ? "dark-background " : "light-background "} height={40} width={40} />
                 );
             case (props.gameClueIcon == "tornPaper"):
                 return (
-                    <TornPaper className={props.isChecked ? "dark-background " : "light-background "} height={70} width={70} />
+                    <TornPaper className={props.isChecked ? "dark-background " : "light-background "} height={40} width={40} />
                 );
             case (props.gameClueIcon == "messageInABottle"):
                 return (
-                    <MessageInABottle className={props.isChecked ? "dark-background " : "light-background "} height={70} width={70} />
+                    <MessageInABottle className={props.isChecked ? "dark-background " : "light-background "} height={40} width={40} />
                 );
             case (props.gameClueIcon == "clueIcon"):
                 return (
-                    <ClueIcon className={props.isChecked ? "dark-background " : "light-background "} height={70} width={70} />
+                    <ClueIcon className={props.isChecked ? "dark-background " : "light-background "} height={40} width={40} />
                 );
             case (props.gameClueIcon == "clueNoteIcon"):
                 return (
-                    <ClueNoteIcon className={props.isChecked ? "dark-background " : "light-background "} height={70} width={70} />
+                    <ClueNoteIcon className={props.isChecked ? "dark-background " : "light-background "} height={40} width={40} />
                 );
             case (props.gameClueIcon == "envelope"):
                 return (
-                    <Envelope className={props.isChecked ? "dark-background " : "light-background "} height={70} width={70} />
+                    <Envelope className={props.isChecked ? "dark-background " : "light-background "} height={40} width={40} />
                 );
             default:
                 return (
-                    <TornPaper className={props.isChecked ? "dark-background " : "light-background "} height={70} width={70} />
+                    <TornPaper className={props.isChecked ? "dark-background " : "light-background "} height={40} width={40} />
                 );
         }
     } else {
         switch (true) {
             case (props.index == 0):
                 return (
-                    <Diary className={props.isChecked ? "dark-background " : "light-background "} height={50} width={50} />
+                    <Diary className={props.isChecked ? "dark-background " : "light-background "} height={40} width={40} />
                 );
             case (props.index == 1):
                 return (
-                    <TornPaper className={props.isChecked ? "dark-background " : "light-background "} height={70} width={70} />
+                    <TornPaper className={props.isChecked ? "dark-background " : "light-background "} height={40} width={40} />
                 );
             case (props.index % 5 == 0):
                 return (
-                    <MessageInABottle className={props.isChecked ? "dark-background " : "light-background "} height={70} width={70} />
+                    <MessageInABottle className={props.isChecked ? "dark-background " : "light-background "} height={40} width={40} />
 
                 );
             case (props.index % 4 == 0):
                 return (
-                    <ClueIcon className={props.isChecked ? "dark-background " : "light-background "} height={70} width={70} />
+                    <ClueIcon className={props.isChecked ? "dark-background " : "light-background "} height={40} width={40} />
 
                 );
             case (props.index % 3 == 0):
                 return (
-                    <ClueNoteIcon className={props.isChecked ? "dark-background " : "light-background "} height={70} width={70} />
+                    <ClueNoteIcon className={props.isChecked ? "dark-background " : "light-background "} height={40} width={40} />
 
                 );
             case (props.index % 2 == 0):
                 return (
-                    <Envelope className={props.isChecked ? "dark-background " : "light-background "} height={70} width={70} />
+                    <Envelope className={props.isChecked ? "dark-background " : "light-background "} height={40} width={40} />
                 );
             default:
                 return (
-                    <TornPaper className={props.isChecked ? "dark-background " : "light-background "} height={70} width={70} />
+                    <TornPaper className={props.isChecked ? "dark-background " : "light-background "} height={40} width={40} />
                 );
         }
     }

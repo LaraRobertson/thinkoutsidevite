@@ -12,13 +12,18 @@ export default function Help() {
                     </Accordion.Trigger>
                     <Accordion.Content>
                         <View>
+                            <View paddingBottom="10px"><strong>You must solve all the Puzzles in all the Zones to win!
+                            </strong></View>
+                            <View paddingBottom="10px">Zone centers are supposed to be the Zone image and/or the
+                                marker on the Map for that Zone and Clues can be anywhere in that area.</View>
+                            <View paddingBottom="10px">Zones have a radius of about 150 feet or so with the image or map icon as center.</View>
                             <View paddingBottom="10px">
                                 Tap on clues to open to give you information which will enable you to solve puzzles.</View>
-                            <View paddingBottom="10px">Tap on puzzles to open and then solve.</View>
-                            <View paddingBottom="10px">Clues reference things in each Zone area - usually within 100 feet</View>
-                            <View paddingBottom="10px">Zones are near the Zone image on the screen and near the
-                                marker on the Map for that Zone (within 100 feet or so).</View>
-                            <View paddingBottom="10px">Hints are better clues but cost 5 minutes.</View>
+                            <View paddingBottom="10px">Click on <strong>All Clues</strong> to figure out Puzzles and if a Clue says look 200 feet away from Zone center, then do that.</View>
+
+                            <View paddingBottom="10px">Tap on Puzzles to open and then solve.</View>
+
+                            <View paddingBottom="10px">Hints are better Clues but cost 5 minutes.</View>
                         </View>
                     </Accordion.Content>
                 </Accordion.Item>

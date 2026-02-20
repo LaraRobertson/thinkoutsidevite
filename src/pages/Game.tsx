@@ -365,18 +365,25 @@ export default function Game() {
         const sanitizedHtmlContent = DOMPurify.sanitize(htmlContent);
         return (sanitizedHtmlContent)
     }*/
-    
+    const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
     if (!game) {
         return <View>Loading...</View>;
     }
     {/* Game UI */}
+    if (gameComplete) {
+        return (
+            <Winner game={game} gameScoreID={gameScoreID} gameTimeTotal={gameTimeTotal} gameTimeHint={gameTimeHint}/>
+        )
+    }
+    if (game && !gameComplete){
     return (
             <View position="relative">
                 {authStatus !== 'authenticated' ? (
                     <NotAvailable message="Game is not available" authStatus={authStatus} />
                 ) : (
                     <>
-                    <View className={isChecked ? "game-container background-dark" : "game-container background-light"}>
+                    <View className={isChecked ? "live game-container background-dark" : "live game-container background-light"}>
                         <div style={missionStyle}>
                             Mission: <span className="mission">{game.gameGoals}</span>
                         </div>
@@ -387,12 +394,12 @@ export default function Game() {
                             })}>
                                 Zone Map
                             </button>
-                            <button className={isChecked ? "button background-dark " : "button background-light "} onClick={() => {
+                            {!isDarkMode && <button className={isChecked ? "button background-dark " : "button background-light "} onClick={() => {
                                 if (setIsChecked) {
                                     setIsChecked(!isChecked);
                                 }
-                            }}>Switch to Dark
-                            </button>
+                            }}>{isChecked? "Switch to Light" : "Switch to Dark"}
+                            </button>}
                             <button className={isChecked ? "button background-dark " : "button background-light "} onClick={() =>
                                 setModalContent(createModalContent({
                                     open: true,
@@ -428,12 +435,12 @@ export default function Game() {
                                 ))}
                             </div>
                         </View>
-                        <div className="zone-name">{zoneName}</div>
+                        <div className="zone-name">You are at {zoneName}</div>
                         <View className="play-area">
                             {playZone.map((zone) => (
                                 <div aria-label={keyID(zone.id, "zone")} key={keyID(zone.id, "zone")}
                                      className={(zoneVisible == zone.id) ? "show" : "hide"}>
-                                    <div className="zone-name">description: <br/>{zone.gameZoneDescription}</div>
+                                    <div className="zone-description">description: <br/>{zone.gameZoneDescription}</div>
                                     <div>
                                         <img src={zone.gameZoneImage || undefined}/>
                                     </div>
@@ -537,4 +544,4 @@ export default function Game() {
                     </>
                 )}
             </View>
-    )}
+    )}}

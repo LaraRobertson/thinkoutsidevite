@@ -25,6 +25,8 @@ export default function Winner(props: WinnerProps) {
     const { game, gameScoreID, gameTimeHint, gameTimeTotal } = props;
 
     return (
+        <section className={"main-container background-light winner"} >
+            <h2>Winner!</h2>
         <View className="black-box">
             <View marginBottom={"10px"}>{game.gameWinMessage}</View>
             <View color="white">Total Time: {gameTimeTotal} minutes</View>
@@ -32,6 +34,7 @@ export default function Winner(props: WinnerProps) {
 
         <CommentSection gameScoreID={gameScoreID}/>
         </View>
+        </section>
     )
 }
 

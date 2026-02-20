@@ -258,7 +258,7 @@ export default function GameIntro(props: GameIntroProps) {
                 <h3>All the Puzzles in all the Zones must be solved to complete the game.</h3>
             </View>
             <View className={"end-paragraph"} textAlign={"center"}>
-                Generally Clues/Answers for Each Zone are within a 100 feet of Zone location.
+                Generally Clues/Answers for Each Zone are within a 150 feet of Zone location.
             </View>
             <View className={"small end-paragraph"} textAlign={"center"}>
                 <strong>You Have Signed Waiver</strong>:
@@ -295,7 +295,7 @@ export default function GameIntro(props: GameIntroProps) {
                     margin="10px auto"
                     maxWidth="300px"
                     placeholder=""
-                    label="Your Public Team Name for this game?"
+                    label="Enter Your Public Team Name:"
                     required
                     value={teamName}
                     onChange={(e) => setTeamNameFunction(e.target.value)}

@@ -11,7 +11,7 @@ export default function Layout() {
     const {authStatus, signOut, user} = useAuthenticator()
     const location = useLocation()
     const [hideNav, setHideNav] = useState(false)
-    const [isChecked, setIsChecked] = useState(false)
+    const [isChecked, setIsChecked] = useState(true)
     const [modalContent, setModalContent] = useState<ModalContent>(getDefaultModalContent())
     
     useEffect(() => {

@@ -90,16 +90,17 @@ export default function ModalPuzzleContent(props: ModalPuzzleContentProps) {
         saveToLocalStorage("gamePuzzleSolved", newSolvedState);
         /*console.log("gamePuzzleSolved: " + JSON.stringify(gamePuzzleSolved));*/
 
+        /* let close do this:
         setTimeout(() => {
             setModalPuzzleContent({ show: true, content: "puzzle" });
-        }, 2000);
+        }, 2000);*/
 
         const solvedCount = Object.values(newSolvedState).filter(Boolean).length;
         if (solvedCount === gamePuzzleArray.length) {
             setTimeout(() => {
                 setGameComplete(true);
                 setModalPuzzleContent({ show: false, content: "puzzle" });
-            }, 3000);
+            }, 2000);
         }
     };
 
@@ -156,13 +157,6 @@ export default function ModalPuzzleContent(props: ModalPuzzleContentProps) {
             {gamePuzzleDetails.puzzleClueText && (
                 <div><hr /><h4>Bonus Clue: </h4>{gamePuzzleDetails.puzzleClueText}</div>
             )}
-            <hr />
-            <h4>Solved Puzzle:</h4>
-                {gamePuzzleDetails.textFields.map((field) => (
-                    <div key={field.id}>
-                        <strong>Question</strong>: {field.label} <br /><strong>Answer</strong>: {field.answer}
-                    </div>
-                ))}
             </div>
         </>
     );

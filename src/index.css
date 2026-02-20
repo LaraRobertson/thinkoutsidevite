@@ -22,8 +22,8 @@
   --max-width: 1280px;
   --mobile-width: 780px;
   --amplify-components-heading-color: #0b441d;
+  --amplify-internal-togglebutton-link-focus-background-color: red;
 }
-
 body {
   margin: 0;
   display: flex;
@@ -428,7 +428,6 @@ a {
 
 .game-example {
   max-width: 400px;
-  background: grey;
   position:relative;
   border: 1px solid black;
 }
@@ -447,11 +446,17 @@ a {
 
 .howtoplay .game-container {
     position:relative;
-    overflow: hidden;
     display: flex;
     flex-direction: column;
     min-height: 100%;
     margin: 0 auto;
     box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.03);
     padding-bottom: 50px;
+}
+
+.background-dark .amplify-togglebutton--pressed {
+  background-color: var(--green-background);
+}
+.background-light .amplify-togglebutton--pressed {
+  background-color: var(--green-link);
 }
