@@ -5,12 +5,12 @@ import {
     goHome
 } from "./helper";
 import {useNavigate} from "react-router-dom";
-import diary from "../assets/icons/noun-diary-6966311.svg";
-import tornPaper from "../assets/icons/noun-torn-paper-3017230.svg";
-import messageInABottle from "../assets/icons/noun-message-in-a-bottle-5712014.svg";
-import clueIcon from "../assets/icons/noun-clue-4353248.svg";
-import clueNoteIcon from "../assets/icons/noun-note-question-1648398.svg";
-import envelope from "../assets/icons/noun-message-6963433.svg";
+import diary from "../assets/icons/diary.svg";
+import tornPaper from "../assets/icons/torn-paper.svg";
+import messageInABottle from "../assets/icons/message-in-a-bottle.svg";
+import clueIcon from "../assets/icons/magnifying-glass.svg";
+import clueNoteIcon from "../assets/icons/note-question.svg";
+import envelope from "../assets/icons/envelope.svg";
 
 interface NotAvailableProps {
     authStatus: string;
