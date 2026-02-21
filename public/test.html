@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body { font-family: sans-serif; }
+        .location-container { max-width: 600px; margin: 20px auto; }
+        .state-group { margin-bottom: 20px; border: 1px solid #ddd; border-radius: 5px; overflow: hidden; }
+        .state-header { background-color: #f4f4f4; padding: 10px; font-weight: bold; border-bottom: 1px solid #ddd; }
+        .city-group { padding: 0; }
+        .city-header { background-color: #e9ecef; padding: 8px 15px; font-size: 0.9em; color: #555; }
+        .item-list { list-style-type: none; padding: 0; margin: 0; }
+        .item-list li { padding: 10px 15px; border-bottom: 1px solid #eee; }
+        .item-list li:last-child { border-bottom: none; }
+    </style>
+</head>
+<body>
+
+<div class="location-container">
+    <h2>Items by Location</h2>
+
+    <!-- State Group -->
+    <div class="state-group">
+        <div class="state-header">California (CA)</div>
+
+        <!-- City Group 1 -->
+        <div class="city-group">
+            <div class="city-header">Los Angeles</div>
+            <ul class="item-list">
+                <li>Item A - $10</li>
+                <li>Item B - $20</li>
+            </ul>
+        </div>
+
+        <!-- City Group 2 -->
+        <div class="city-group">
+            <div class="city-header">San Francisco</div>
+            <ul class="item-list">
+                <li>Item C - $15</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- State Group 2 -->
+    <div class="state-group">
+        <div class="state-header">New York (NY)</div>
+        <div class="city-group">
+            <div class="city-header">New York City</div>
+            <ul class="item-list">
+                <li>Item D - $30</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

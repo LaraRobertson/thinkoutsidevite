@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filtered Card Listing</title>
+
+    <style>
+
+        body{
+            font-family:system-ui, sans-serif;
+            background:#f4f6f8;
+            margin:0;
+            padding:40px;
+        }
+
+        /* FILTER BAR */
+
+        .filters{
+            background:white;
+            padding:20px;
+            border-radius:12px;
+            box-shadow:0 4px 14px rgba(0,0,0,.08);
+            display:flex;
+            gap:20px;
+            flex-wrap:wrap;
+            margin-bottom:30px;
+        }
+
+        select{
+            padding:10px;
+            border-radius:8px;
+            border:1px solid #ccc;
+            min-width:200px;
+        }
+
+        /* CARD GRID */
+
+        .card-grid{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+            gap:24px;
+        }
+
+        /* CARD */
+
+        .card{
+            background:white;
+            border-radius:14px;
+            padding:20px;
+            box-shadow:0 4px 14px rgba(0,0,0,.08);
+            transition:.25s;
+        }
+
+        .card:hover{
+            transform:translateY(-4px);
+            box-shadow:0 8px 20px rgba(0,0,0,.12);
+        }
+
+        .card h3{
+            margin:0 0 8px 0;
+        }
+
+        .meta{
+            color:#666;
+            font-size:.9rem;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<h1>Property Listings</h1>
+
+<!-- FILTERS -->
+<div class="filters">
+
+    <select id="stateSelect">
+        <option value="">All States</option>
+    </select>
+
+    <select id="citySelect">
+        <option value="">All Cities</option>
+    </select>
+
+</div>
+
+<!-- RESULTS -->
+<div id="results" class="card-grid"></div>
+
+<script>
+
+    /* MOCK DATA */
+    const listings = [
+        {title:"River Cabin", state:"Georgia", city:"Savannah"},
+        {title:"Mountain View Lot", state:"Georgia", city:"Athens"},
+        {title:"Downtown Condo", state:"Florida", city:"Miami"},
+        {title:"Lake Property", state:"Florida", city:"Tampa"},
+        {title:"Hilltop Retreat", state:"Tennessee", city:"Nashville"}
+    ];
+
+    const stateSelect = document.getElementById("stateSelect");
+    const citySelect = document.getElementById("citySelect");
+    const results = document.getElementById("results");
+
+    /* BUILD STATE LIST */
+    const states = [...new Set(listings.map(l => l.state))];
+
+    states.forEach(state=>{
+        const opt=document.createElement("option");
+        opt.value=state;
+        opt.textContent=state;
+        stateSelect.appendChild(opt);
+    });
+
+    /* UPDATE CITY LIST */
+    function populateCities(){
+        const selectedState = stateSelect.value;
+
+        const cities = listings
+            .filter(l => !selectedState || l.state===selectedState)
+            .map(l=>l.city);
+
+        const uniqueCities=[...new Set(cities)];
+
+        citySelect.innerHTML =
+            '<option value="">All Cities</option>';
+
+        uniqueCities.forEach(city=>{
+            const opt=document.createElement("option");
+            opt.value=city;
+            opt.textContent=city;
+            citySelect.appendChild(opt);
+        });
+    }
+
+    /* RENDER CARDS */
+    function renderCards(){
+
+        const state = stateSelect.value;
+        const city = citySelect.value;
+
+        const filtered = listings.filter(l=>{
+            return (!state || l.state===state) &&
+                (!city || l.city===city);
+        });
+
+        results.innerHTML="";
+
+        filtered.forEach(item=>{
+            const card=document.createElement("div");
+            card.className="card";
+
+            card.innerHTML=`
+      <h3>${item.title}</h3>
+      <div class="meta">${item.city}, ${item.state}</div>
+    `;
+
+            results.appendChild(card);
+        });
+    }
+
+    /* EVENTS */
+    stateSelect.addEventListener("change",()=>{
+        populateCities();
+        renderCards();
+    });
+
+    citySelect.addEventListener("change",renderCards);
+
+    /* INITIAL LOAD */
+    populateCities();
+    renderCards();
+
+</script>
+
+</body>
+</html>

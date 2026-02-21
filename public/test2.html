@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Card Listing</title>
+
+    <style>
+
+        body {
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+            background:#f4f6f8;
+            margin:0;
+            padding:40px;
+        }
+
+        /* GRID */
+        .card-grid {
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+            gap:24px;
+        }
+
+        /* CARD */
+        .card {
+            background:white;
+            border-radius:14px;
+            padding:20px;
+            box-shadow:0 4px 14px rgba(0,0,0,.08);
+            transition:.25s;
+        }
+
+        .card:hover {
+            transform:translateY(-4px);
+            box-shadow:0 8px 20px rgba(0,0,0,.12);
+        }
+
+        .card h3 {
+            margin-top:0;
+        }
+
+        /* SELECTORS */
+        .selector-group {
+            display:flex;
+            flex-direction:column;
+            gap:12px;
+            margin-top:15px;
+        }
+
+        label {
+            font-size:.85rem;
+            color:#555;
+        }
+
+        select {
+            padding:10px;
+            border-radius:8px;
+            border:1px solid #ccc;
+            font-size:1rem;
+            background:white;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<h1>Locations</h1>
+
+<div class="card-grid">
+
+    <!-- CARD 1 -->
+    <div class="card">
+        <h3>Listing #1</h3>
+
+        <div class="selector-group">
+            <div>
+                <label>State</label>
+                <select class="state-select">
+                    <option value="">Select State</option>
+                </select>
+            </div>
+
+            <div>
+                <label>City</label>
+                <select class="city-select">
+                    <option value="">Select City</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- CARD 2 -->
+    <div class="card">
+        <h3>Listing #2</h3>
+
+        <div class="selector-group">
+            <div>
+                <label>State</label>
+                <select class="state-select"></select>
+            </div>
+
+            <div>
+                <label>City</label>
+                <select class="city-select"></select>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+    /* DATA SOURCE */
+    const locations = {
+        Georgia: ["Savannah", "Atlanta", "Athens"],
+        Florida: ["Miami", "Orlando", "Tampa"],
+        Tennessee: ["Nashville", "Knoxville", "Chattanooga"]
+    };
+
+    /* INITIALIZE ALL CARDS */
+    document.querySelectorAll(".card").forEach(card => {
+
+        const stateSelect = card.querySelector(".state-select");
+        const citySelect = card.querySelector(".city-select");
+
+        /* Populate states */
+        stateSelect.innerHTML =
+            '<option value="">Select State</option>';
+
+        Object.keys(locations).forEach(state => {
+            const option = document.createElement("option");
+            option.value = state;
+            option.textContent = state;
+            stateSelect.appendChild(option);
+        });
+
+        /* Update cities when state changes */
+        stateSelect.addEventListener("change", () => {
+
+            const cities = locations[stateSelect.value] || [];
+
+            citySelect.innerHTML =
+                '<option value="">Select City</option>';
+
+            cities.forEach(city => {
+                const option = document.createElement("option");
+                option.value = city;
+                option.textContent = city;
+                citySelect.appendChild(option);
+            });
+        });
+
+    });
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Land Listings</title>
+
+    <style>
+
+        body{
+            font-family:system-ui,-apple-system,sans-serif;
+            background:#f5f7fa;
+            margin:0;
+        }
+
+        /* HEADER */
+        .header{
+            padding:30px 40px 10px;
+        }
+
+        h1{
+            margin:0;
+        }
+
+        /* FILTER BAR */
+
+        .filters{
+            background:white;
+            margin:20px 40px;
+            padding:18px;
+            border-radius:14px;
+            box-shadow:0 4px 16px rgba(0,0,0,.08);
+            display:flex;
+            gap:15px;
+            flex-wrap:wrap;
+        }
+
+        select{
+            padding:10px 12px;
+            border-radius:8px;
+            border:1px solid #ccc;
+            min-width:180px;
+        }
+
+        /* GRID */
+
+        .card-grid{
+            padding:20px 40px 40px;
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+            gap:28px;
+        }
+
+        /* CARD */
+
+        .card{
+            background:white;
+            border-radius:16px;
+            overflow:hidden;
+            box-shadow:0 6px 20px rgba(0,0,0,.08);
+            transition:.25s;
+        }
+
+        .card:hover{
+            transform:translateY(-6px);
+            box-shadow:0 12px 26px rgba(0,0,0,.14);
+        }
+
+        /* IMAGE */
+
+        .card img{
+            width:100%;
+            height:200px;
+            object-fit:cover;
+        }
+
+        /* CONTENT */
+
+        .card-body{
+            padding:18px;
+        }
+
+        .price{
+            font-size:1.5rem;
+            font-weight:700;
+        }
+
+        .location{
+            color:#666;
+            margin:6px 0 10px;
+        }
+
+        /* DETAILS */
+
+        .details{
+            display:flex;
+            gap:15px;
+            flex-wrap:wrap;
+            font-size:.9rem;
+        }
+
+        .badge{
+            background:#eef3f8;
+            padding:6px 10px;
+            border-radius:6px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <h1>Land & Property Listings</h1>
+</div>
+
+<!-- FILTERS -->
+<div class="filters">
+
+    <select id="stateSelect">
+        <option value="">All States</option>
+    </select>
+
+    <select id="citySelect">
+        <option value="">All Cities</option>
+    </select>
+
+</div>
+
+<!-- RESULTS -->
+<div id="results" class="card-grid"></div>
+
+<script>
+
+    /* SAMPLE LAND DATA */
+    const listings=[
+        {
+            title:"Mountain View Acreage",
+            price:85000,
+            acres:5.2,
+            state:"Georgia",
+            city:"Hiawassee",
+            water:"Creek",
+            unrestricted:true,
+            image:"https://picsum.photos/600/400?1"
+        },
+        {
+            title:"Lake Access Lot",
+            price:72000,
+            acres:2.1,
+            state:"Georgia",
+            city:"Blue Ridge",
+            water:"Lake",
+            unrestricted:false,
+            image:"https://picsum.photos/600/400?2"
+        },
+        {
+            title:"Riverfront Cabin Site",
+            price:99000,
+            acres:4.4,
+            state:"Tennessee",
+            city:"Chattanooga",
+            water:"River",
+            unrestricted:true,
+            image:"https://picsum.photos/600/400?3"
+        },
+        {
+            title:"Off-Grid Retreat",
+            price:65000,
+            acres:6.8,
+            state:"North Carolina",
+            city:"Murphy",
+            water:"None",
+            unrestricted:true,
+            image:"https://picsum.photos/600/400?4"
+        }
+    ];
+
+    const stateSelect=document.getElementById("stateSelect");
+    const citySelect=document.getElementById("citySelect");
+    const results=document.getElementById("results");
+
+    /* BUILD STATES */
+    const states=[...new Set(listings.map(l=>l.state))];
+
+    states.forEach(state=>{
+        const opt=document.createElement("option");
+        opt.value=state;
+        opt.textContent=state;
+        stateSelect.appendChild(opt);
+    });
+
+    /* POPULATE CITIES */
+    function populateCities(){
+        const state=stateSelect.value;
+
+        const cities=listings
+            .filter(l=>!state||l.state===state)
+            .map(l=>l.city);
+
+        const unique=[...new Set(cities)];
+
+        citySelect.innerHTML='<option value="">All Cities</option>';
+
+        unique.forEach(city=>{
+            const opt=document.createElement("option");
+            opt.value=city;
+            opt.textContent=city;
+            citySelect.appendChild(opt);
+        });
+    }
+
+    /* RENDER CARDS */
+    function render(){
+
+        const state=stateSelect.value;
+        const city=citySelect.value;
+
+        const filtered=listings.filter(l=>{
+            return(!state||l.state===state)&&
+                (!city||l.city===city);
+        });
+
+        results.innerHTML="";
+
+        filtered.forEach(l=>{
+
+            const card=document.createElement("div");
+            card.className="card";
+
+            card.innerHTML=`
+      <img src="${l.image}">
+      <div class="card-body">
+        <div class="price">$${l.price.toLocaleString()}</div>
+        <div class="location">${l.city}, ${l.state}</div>
+
+        <div class="details">
+          <div class="badge">${l.acres} acres</div>
+          <div class="badge">${l.water}</div>
+          ${l.unrestricted ? '<div class="badge">Unrestricted</div>' : ''}
+        </div>
+      </div>
+    `;
+
+            results.appendChild(card);
+        });
+    }
+
+    /* EVENTS */
+    stateSelect.addEventListener("change",()=>{
+        populateCities();
+        render();
+    });
+
+    citySelect.addEventListener("change",render);
+
+    /* INIT */
+    populateCities();
+    render();
+
+</script>
+
+</body>
+</html>
