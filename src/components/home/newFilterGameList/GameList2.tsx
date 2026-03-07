@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useState} from "react";
+import {useContext, useEffect, useMemo, useState} from "react";
 
 import Filters from "./Filters.tsx";
 
@@ -6,7 +6,8 @@ import {dataService} from "../../../services/dataService.ts";
 import type {Game, GameDetails} from "../../../types/game.ts";
 import GameCard from "../GameCard.tsx";
 import {useCities} from "../../../hooks/useGames.ts";
-import {Flex} from "@aws-amplify/ui-react";
+import {Button, Flex, Heading} from "@aws-amplify/ui-react";
+import {MyAuthContext} from "../../../MyContext.tsx";
 
 export interface FiltersState {
     city: string;
@@ -70,6 +71,15 @@ export default function GameList2(props: GameListProps) {
         fetchGames();
     }, []);
 
+    const context = useContext(MyAuthContext);
+    if (!context) throw new Error("GameIntro must be used within MyAuthContext.Provider");
+    const { setModalContent, user } = context;
+    const handleMyStats = () => {
+        setModalContent({
+            gameDesigner: "",
+            puzzleID: "",
+            open: true, content: "My Stats", id: "", modalStyle: "game-details", action: "", gameID: "", zoneID: "", updatedDB: false });
+    };
     /* FILTER RESULTS */
     const filteredListings = useMemo(() => {
         return games.filter(l =>
@@ -80,6 +90,17 @@ export default function GameList2(props: GameListProps) {
 
     return (
         <div>
+            {user && (
+                <>
+                    <h3>Welcome {user?.signInDetails?.loginId}</h3>
+                    <Button
+                        className="button button-small background-light show"
+                        onClick={() => handleMyStats()}
+                    >
+                        My Stats
+                    </Button>
+                </>
+            )}
             <h1>Games</h1>
 
             <Filters
@@ -97,6 +118,9 @@ export default function GameList2(props: GameListProps) {
                               canPlay={gamesIDUser.includes(game.id)}/>
                 ))}
             </Flex>
+            <Heading level={6} className="heading" marginBottom="5px" marginTop={"10px"}>
+                GAMES ARE IN TESTING MODE<br/>Please contact info@escapeout.games to report issues.
+            </Heading>
         </div>
     );
 }
