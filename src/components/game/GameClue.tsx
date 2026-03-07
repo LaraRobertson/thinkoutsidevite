@@ -136,6 +136,7 @@ export default function GameClue(props: GameClueProps) {
                     <div>
                         <h4>clue:</h4>
                         {clue.gameClueText}
+                        <img width={"150"} src={clue.gameClueImage || undefined}/>
                         <button className={isChecked? "button background-light" : "button background-dark"}>close</button>
                     </div>
                     ):(
