@@ -1,5 +1,5 @@
 import Hero from "../components/home/Hero";
-import GameList from "../components/home/GameList";
+import GameList2 from "../components/home/newFilterGameList/GameList2.tsx";
 import GameDetail from "../components/home/modalContent/GameDetail";
 import GameIntro from "../components/home/modalContent/GameIntro";
 import Waiver from "../components/home/modalContent/Waiver";
@@ -138,7 +138,8 @@ export default function Home() {
         </section>
         <section className={"main-container background-dark"}>
             <div className={"main-content"}>
-                <GameList setGameDetails={setGameDetails} gamesIDUserPlayed={gamesIDUserPlayed} gamesIDUser={gamesIDUser}/>
+                <GameList2 setGameDetails={setGameDetails} gamesIDUserPlayed={gamesIDUserPlayed} gamesIDUser={gamesIDUser}/>
+
                 <ModalSlideFromBottom isOpen={modalContent.open} >
                     {(modalContent.content == "Game Detail" && gameDetails) && <GameDetail gameDetails={gameDetails} />}
                     {(modalContent.content == "Game Intro" && gameDetails) && <GameIntro gameDetails={gameDetails} setGameDetails={setGameDetails} />}
