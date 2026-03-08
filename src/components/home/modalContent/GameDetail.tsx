@@ -57,7 +57,7 @@ export default function GameDetail(props: GameDetailProps) {
                             open: true,
                             content: "Map"
                         })}>
-                    Location of First Zone on Map</Button>
+                    Location of Center of First Zone Map</Button>
                 <br />You must find the other Zone Locations while playing the game.<br /><br />
             </View>
             <ModalMap isOpen={modalContentMap.open} setModalContentMap={setModalContentMap}>

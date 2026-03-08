@@ -42,6 +42,7 @@ export default function GameIntro(props: GameIntroProps) {
     const [modalContentGI, setModalContentGI] = useState<ModalContentState>({show:false, content:""});
     const [modalContentWaiver, setModalContentWaiver] = useState<ModalContentState>({show:false, content:""});
     const [modalContentMap, setModalContentMap] = useState<ModalContentMap>({open: false, content: ""});
+    const [viewDescription, setViewDescription] = useState(false);
     
     console.log('gameDetails.gameName: ' + gameDetails.gameName);
     
@@ -258,7 +259,18 @@ export default function GameIntro(props: GameIntroProps) {
                 <h3>All the Puzzles in all the Zones must be solved to complete the game.</h3>
             </View>
             <View className={"end-paragraph"} textAlign={"center"}>
-                Generally Clues/Answers for Each Zone are within a 150 feet of Zone location.
+                Generally Clues/Answers for Each Zone are within a 150 feet of Zone location but check <strong>Description</strong> for exceptions.
+                <Button onClick={() => setViewDescription(true)} variation={"link"}>
+                    Show Description
+                </Button>
+                {viewDescription && (
+                    <View className={"small"} textAlign={"center"} padding={"0 10px"}>
+                        <div dangerouslySetInnerHTML={{ __html: DangerouslySetInnerHTMLSanitized(gameDetails.gameDescription) }} />
+                        <Button onClick={() => setViewDescription(false)} variation={"link"}>
+                            Close Description
+                        </Button>
+                    </View>
+                )}
             </View>
             <View className={"small end-paragraph"} textAlign={"center"}>
                 <strong>You Have Signed Waiver</strong>:

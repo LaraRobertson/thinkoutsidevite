@@ -84,9 +84,9 @@ export function CommentSection({ gameScoreID }: { gameScoreID: string }) {
     /* comments */
     const [exclusiveValue1, setExclusiveValue1] = useState('');
     const [exclusiveValue2, setExclusiveValue2] = useState('');
-    /*const [exclusiveValue3, setExclusiveValue3] = useState('');
+    const [exclusiveValue3, setExclusiveValue3] = useState('');
     const [exclusiveValue4, setExclusiveValue4] = useState('');
-    const [exclusiveValue5, setExclusiveValue5] = useState('');*/
+    /*const [exclusiveValue5, setExclusiveValue5] = useState('');*/
     
     return (
         <>
@@ -138,41 +138,47 @@ export function CommentSection({ gameScoreID }: { gameScoreID: string }) {
             </ToggleButton>
         </ToggleButtonGroup>
 
-        {/*<Heading level={6} className={"heading"} paddingTop="5px" paddingBottom={"5px"}>Would you play another?</Heading>
+        <Heading level={6} className={"heading"} paddingTop="5px" paddingBottom={"5px"}>Difficulty?</Heading>
         <ToggleButtonGroup
             value={exclusiveValue4}
-            onChange={(value) => {setGameCommentsFunction("another",value);setExclusiveValue4(value)}}
+            onChange={(value) => {setGameCommentsFunction("difficult",value as string);setExclusiveValue4(value as string)}}
             isExclusive
             id={"2"}
         >
-            <ToggleButton value="yes">
-                Yes
+            <ToggleButton value="Easy">
+                Easy
             </ToggleButton>
-            <ToggleButton value="never">
-                Never
+            <ToggleButton value="Medium">
+                Medium
             </ToggleButton>
-            <ToggleButton value="maybe">
-                Maybe
+            <ToggleButton value="Hard">
+                Hard
             </ToggleButton>
-        </ToggleButtonGroup>*/}
+        </ToggleButtonGroup>
 
-        {/* <Heading level={6} className={"heading"} paddingTop="5px" paddingBottom={"5px"}>Would you want to Create a Game Like this?</Heading>
+        <Heading level={6} className={"heading"} paddingTop="5px" paddingBottom={"5px"}>Rating?</Heading>
         <ToggleButtonGroup
             value={exclusiveValue3}
-            onChange={(value) => {setGameCommentsFunction("create-a-game",value);setExclusiveValue3(value)}}
+            onChange={(value) => {setGameCommentsFunction("rating",value as string);setExclusiveValue3(value as string)}}
             isExclusive
             id={"2"}
         >
-            <ToggleButton value="yes">
-                Yes
+            <ToggleButton value="1">
+                1
             </ToggleButton>
-            <ToggleButton value="no">
-                No
+            <ToggleButton value="2">
+                2
             </ToggleButton>
-            <ToggleButton value="maybe">
-                Maybe
+            <ToggleButton value="3">
+                3
             </ToggleButton>
-        </ToggleButtonGroup>*/}
+            <ToggleButton value="4">
+               4
+            </ToggleButton>
+            <ToggleButton value="5">
+                5
+            </ToggleButton>
+        </ToggleButtonGroup>
 
         {/* <Heading level={6} className={"heading"} paddingTop="5px" paddingBottom={"5px"}>Can I contact you for more feedback?</Heading>
 
